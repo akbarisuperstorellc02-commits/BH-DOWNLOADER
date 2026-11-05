@@ -17,4 +17,5 @@
     <string name="refresh">بیا تازه کول</string>
     <string name="language_restart_hint">ټاکل شوې ژبه په خپله پلي کېږي.</string>
     <string name="remove">له لېست څخه لرې کول</string>
+    <string name="eta">پاتې وخت</string>
 </resources>
