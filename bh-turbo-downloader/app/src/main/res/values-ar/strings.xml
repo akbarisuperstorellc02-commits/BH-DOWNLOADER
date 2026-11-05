@@ -8,4 +8,13 @@
     <string name="my_library">مكتبتي</string><string name="your_downloads">تنزيلاتك</string><string name="no_downloads">لا توجد تنزيلات بعد</string><string name="preferences">التفضيلات</string>
     <string name="download_mode">وضع التنزيل</string><string name="maximum_performance">أقصى أداء</string><string name="save_location">موقع الحفظ</string><string name="choose_folder">اختر مجلد التنزيل</string><string name="appearance">المظهر</string><string name="dark_glass">زجاج داكن ثلاثي الأبعاد</string><string name="language">اللغة</string><string name="download_added">تمت إضافة التنزيل إلى القائمة</string>
     <string name="pause">إيقاف مؤقت</string><string name="resume">استئناف</string><string name="downloading">جارٍ التنزيل</string><string name="completed">اكتمل</string><string name="paused">متوقف مؤقتًا</string><string name="failed">فشل</string><string name="interrupted">منقطع</string>
+    <string name="download_failed">تعذر بدء التنزيل</string>
+    <string name="clear">مسح</string>
+    <string name="calculating_size">جارٍ حساب حجم الملف…</string>
+    <string name="queued">في قائمة الانتظار</string>
+    <string name="back">رجوع</string>
+    <string name="forward">تقدم</string>
+    <string name="refresh">تحديث</string>
+    <string name="language_restart_hint">يتم تطبيق اللغة المختارة تلقائيًا.</string>
+    <string name="remove">إزالة من القائمة</string>
 </resources>
