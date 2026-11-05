@@ -109,6 +109,7 @@ class DownloadEngine(
         val completed = AtomicLong(0)
         val executor = Executors.newFixedThreadPool(count)
         val futures = ArrayList<Future<Unit>>()
+        val segmentCalls = ConcurrentHashMap.newKeySet<Call>()
         RandomAccessFile(temp, "rw").use { it.setLength(total) }
         try {
             for (index in 0 until count) {
@@ -120,6 +121,7 @@ class DownloadEngine(
                         .header("Range", "bytes=$start-$end").build()
                     val call = client.newCall(request)
                     activeCalls.add(call)
+                    segmentCalls.add(call)
                     try {
                     call.execute().use { response ->
                         val expectedContentRange = "bytes $start-$end/$total"
@@ -146,6 +148,7 @@ class DownloadEngine(
                     }
                     } finally {
                         activeCalls.remove(call)
+                        segmentCalls.remove(call)
                     }
                     Unit
                 })
@@ -153,7 +156,9 @@ class DownloadEngine(
             futures.forEach { it.get() }
         } catch (e: Exception) {
             futures.forEach { it.cancel(true) }
-            if (cancelled.get()) temp.delete()
+            // Stop sibling HTTP requests after a failed segment, but preserve the
+            // partial file when the user pauses so a later resume can continue.
+            segmentCalls.forEach { it.cancel() }
             throw (e.cause as? IOException ?: IOException("Segmented download failed", e))
         } finally {
             executor.shutdownNow()
