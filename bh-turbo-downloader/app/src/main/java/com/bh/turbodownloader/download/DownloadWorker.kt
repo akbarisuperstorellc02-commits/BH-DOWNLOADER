@@ -42,10 +42,6 @@ class DownloadWorker(
                 onProgress = { downloaded, total ->
                     val percent = if (total > 0L) ((downloaded * 100L) / total).toInt().coerceIn(0, 100) else 0
                     setProgress(workDataOf("downloaded" to downloaded, "total" to total, "percent" to percent))
-                },
-                onProgressNotification = { downloaded, total ->
-                    val percent = if (total > 0L) ((downloaded * 100L) / total).toInt().coerceIn(0, 100) else 0
-                    setForeground(foregroundInfo(name, percent, total <= 0L))
                 }
             )
             Result.success()
