@@ -10,6 +10,7 @@ import com.bh.turbodownloader.download.DownloadUiItem
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.WebSettings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -263,7 +264,7 @@ private fun HeroSpeedCard() {
             Text("Smart connections • segmented transfers", color = Color(0xFFB7C8DE), fontSize = 11.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 FeatureChip("Multi-connection")
-                FeatureChip("Resume support")
+                FeatureChip("Smart fallback")
             }
         }
     }
@@ -304,6 +305,12 @@ private fun BrowserScreen(onStartDownload: (String) -> String) {
                     WebView(context).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
+                        settings.allowFileAccess = false
+                        settings.allowContentAccess = false
+                        settings.javaScriptCanOpenWindowsAutomatically = false
+                        settings.setSupportMultipleWindows(false)
+                        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                        if (android.os.Build.VERSION.SDK_INT >= 26) settings.safeBrowsingEnabled = true
                         webViewClient = WebViewClient()
                         webChromeClient = WebChromeClient()
                         setDownloadListener { downloadUrl, _, _, _, _ -> onStartDownload(downloadUrl) }
