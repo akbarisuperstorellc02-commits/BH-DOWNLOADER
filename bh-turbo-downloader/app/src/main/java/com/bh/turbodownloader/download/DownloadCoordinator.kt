@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
+import org.json.JSONArray
+import org.json.JSONObject
 
 data class DownloadUiItem(
     val id: String,
@@ -32,7 +34,7 @@ data class DownloadUiItem(
 class DownloadCoordinator(context: Context) {
     private val appContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val _items = MutableStateFlow<List<DownloadUiItem>>(emptyList())
+    private val _items = MutableStateFlow(loadItems())
     val items: StateFlow<List<DownloadUiItem>> = _items.asStateFlow()
 
     fun start(rawUrl: String) {
@@ -83,8 +85,51 @@ class DownloadCoordinator(context: Context) {
     private fun setStatus(id: String, status: String) =
         update { list -> list.map { if (it.id == id) it.copy(status = status) else it } }
 
+    @Synchronized
     private fun update(transform: (List<DownloadUiItem>) -> List<DownloadUiItem>) {
-        _items.update(transform)
+        val next = transform(_items.value).takeLast(100)
+        _items.value = next
+        persistItems(next)
+    }
+
+    private fun loadItems(): List<DownloadUiItem> {
+        return try {
+            val raw = appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
+                .getString("items", "[]") ?: "[]"
+            val array = JSONArray(raw)
+            (0 until array.length()).mapNotNull { index ->
+                val item = array.optJSONObject(index) ?: return@mapNotNull null
+                val savedStatus = item.optString("status", "Queued")
+                DownloadUiItem(
+                    id = item.optString("id"),
+                    url = item.optString("url"),
+                    fileName = item.optString("fileName"),
+                    downloaded = item.optLong("downloaded", 0L),
+                    total = item.optLong("total", -1L),
+                    status = if (savedStatus == "Downloading" || savedStatus == "Starting") "Interrupted" else savedStatus,
+                    error = item.optString("error").takeIf { it.isNotBlank() && it != "null" }
+                )
+            }.filter { it.id.isNotBlank() && it.fileName.isNotBlank() }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun persistItems(items: List<DownloadUiItem>) {
+        val array = JSONArray()
+        items.forEach { item ->
+            array.put(JSONObject().apply {
+                put("id", item.id)
+                put("url", item.url)
+                put("fileName", item.fileName)
+                put("downloaded", item.downloaded)
+                put("total", item.total)
+                put("status", item.status)
+                put("error", item.error ?: "")
+            })
+        }
+        appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
+            .edit().putString("items", array.toString()).apply()
     }
 
     fun close() { scope.cancel() }
