@@ -69,13 +69,17 @@ class DownloadCoordinator(context: Context) {
     private fun launchTask(id: String, url: String, name: String, resume: Boolean) {
         if (jobs[id]?.isActive == true) return
         val job = scope.launch {
-            val temp = File(appContext.cacheDir, "bh_" + id + ".download")
+            val tempDir = File(appContext.filesDir, "downloads").apply { mkdirs() }
+            val temp = File(tempDir, "bh_" + id + ".download")
             val engine = DownloadEngine()
             engines[id] = engine
             update { list -> list.map { if (it.id == id) it.copy(status = "Downloading", error = null) else it } }
             try {
+                var lastPersistedBytes = 0L
                 val result = engine.download(url, temp, resume) { downloaded, total ->
-                    update { list -> list.map {
+                    val checkpoint = downloaded - lastPersistedBytes >= 512L * 1024L
+                    if (checkpoint) lastPersistedBytes = downloaded
+                    update(persist = checkpoint) { list -> list.map {
                         if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
                     } }
                 }
@@ -168,10 +172,10 @@ class DownloadCoordinator(context: Context) {
     }
 
     @Synchronized
-    private fun update(transform: (List<DownloadUiItem>) -> List<DownloadUiItem>) {
+    private fun update(persist: Boolean = true, transform: (List<DownloadUiItem>) -> List<DownloadUiItem>) {
         val next = transform(_items.value).takeLast(100)
         _items.value = next
-        persistItems(next)
+        if (persist) persistItems(next)
     }
 
     private fun loadItems(): List<DownloadUiItem> = try {
