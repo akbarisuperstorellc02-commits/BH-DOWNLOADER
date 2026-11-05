@@ -101,7 +101,6 @@ private fun TurboApp() {
     val context = LocalContext.current
     val coordinator = remember { DownloadCoordinator(context) }
     val downloads by coordinator.items.collectAsState()
-    DisposableEffect(coordinator) { onDispose { coordinator.close() } }
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -131,7 +130,7 @@ private fun TurboApp() {
                 when (selected) {
                     0 -> HomeScreen(downloads, startDownload)
                     1 -> BrowserScreen(startDownload)
-                    2 -> LibraryScreen(downloads)
+                    2 -> LibraryScreen(downloads, coordinator)
                     else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) })
                 }
                 NavigationBar(
