@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">BH Turbo Downloader</string><string name="home">کور</string><string name="browser">لټونګر</string><string name="files">فایلونه</string><string name="settings">امستنې</string>
+    <string name="downloader">ډاونلوډر</string><string name="tagline">ستاسو فایلونه، په بشپړ سرعت.</string><string name="new_download">نوی ډاونلوډ</string><string name="paste_url">د فایل لینک دننه کړئ</string><string name="start_download">ډاونلوډ پیل کړئ</string>
+    <string name="ready_download">ستاسو راتلونکي ډاونلوډ ته چمتو دی</string><string name="link_ready">لینک د کتنې لپاره چمتو دی</string><string name="recent_downloads">وروستي ډاونلوډونه</string><string name="view_all">ټول وګورئ</string>
+    <string name="download_space">ستاسو د ډاونلوډ ځای</string><string name="download_space_hint">ډاونلوډ شوي فایلونه دلته ښکاري</string><string name="maximum_mode">اعظمي حالت • خوندي اړیکه</string><string name="turbo_engine">ټربو انجن</string>
+    <string name="built_speed">د اعظمي سرعت\nلپاره جوړ شوی.</string><string name="segmented_transfers">هوښیارې اړیکې • څو برخې ډاونلوډ</string><string name="multi_connection">څو اړیکې</string><string name="smart_fallback">هوښیار بدیل</string>
+    <string name="internal_browser">داخلي لټونګر</string><string name="explore_download">وپلټئ او ډاونلوډ کړئ</string><string name="website_address">د وېبپاڼې پته ولیکئ</string><string name="open_website">وېبپاڼه پرانیزئ</string>
+    <string name="my_library">زما کتابتون</string><string name="your_downloads">ستاسو ډاونلوډونه</string><string name="no_downloads">تر اوسه ډاونلوډ نشته</string><string name="preferences">غوره‌توبونه</string>
+    <string name="download_mode">د ډاونلوډ حالت</string><string name="maximum_performance">اعظمي فعالیت</string><string name="save_location">د خوندي کولو ځای</string><string name="choose_folder">د ډاونلوډ پوښۍ وټاکئ</string><string name="appearance">بڼه</string><string name="dark_glass">درې‌بعدي تیاره ښیښه</string><string name="language">ژبه</string><string name="download_added">ډاونلوډ لېست ته اضافه شو</string>
+</resources>
