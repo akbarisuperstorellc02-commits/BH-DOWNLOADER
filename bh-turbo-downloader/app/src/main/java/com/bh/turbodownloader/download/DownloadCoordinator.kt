@@ -115,7 +115,7 @@ class DownloadCoordinator private constructor(context: Context) {
             val result = engine.download(url, temp, shouldResume) { downloaded, total ->
                 val now = android.os.SystemClock.elapsedRealtime()
                 val elapsed = now - lastSpeedTime
-                if (elapsed >= 500L) {
+                if (elapsed > 0L) {
                     currentSpeed = ((downloaded - lastSpeedBytes).coerceAtLeast(0L) * 1000L) / elapsed
                     lastSpeedBytes = downloaded
                     lastSpeedTime = now
