@@ -9,8 +9,9 @@ Clean-room Android downloader project. This implementation is built independentl
 - HTTP/HTTPS downloads using segmented byte ranges when supported, with safe single-stream fallback
 - Maximum 8 simultaneous segments per supported download
 - Live progress and recent-download dashboard
-- Pause and resume: single-stream tasks resume with HTTP Range; paused segmented tasks restart safely
-- Persisted task history and partial transfer files in app-private durable storage
+- Pause and resume: single-stream tasks resume with HTTP Range; interrupted segmented transfers restart safely
+- WorkManager-backed persistent jobs with a user-visible foreground download notification
+- Network-connected scheduling and recovery after process recreation; durable task history and partial transfer files in app-private storage
 - Default public output on Android 10+: `Download/TurboBH`
 - User-selectable Storage Access Framework destination with persisted permission
 - App languages: English, Afghan Dari, Pashto and Arabic
@@ -24,9 +25,9 @@ Clean-room Android downloader project. This implementation is built independentl
 
 ## Important limitations
 - CI is building the debug APK; the build result must be checked before distributing an APK.
-- Transfers currently run in the application process. WorkManager/foreground-service execution for reliable downloads after the app is swiped away is still pending.
+- Foreground WorkManager execution improves reliability when the app UI is closed, but Android battery policies, force-stop, OEM restrictions, and foreground-service time limits can still stop work. On Android 15+, data-sync foreground work is subject to the platform's six-hour-per-24-hour limit.
 - On Android 9 and older, the fallback destination is app-specific Downloads unless the user selects a folder.
-- Browser tabs, browser history, file-type detection, retry policy, and automatic restart of interrupted downloads remain future work.
+- Browser tabs, browser history, robust MIME/filename detection, automated integration tests, and broad real-device validation remain future work.
 - A paused single-stream transfer can resume if the server honors HTTP Range. A segmented transfer that is interrupted is restarted safely rather than incorrectly continuing from a preallocated file.
 
 ## Build
