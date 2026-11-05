@@ -14,4 +14,5 @@
     <string name="preferences">PREFERENCES</string><string name="download_mode">Download mode</string><string name="maximum_performance">Maximum performance</string>
     <string name="save_location">Save location</string><string name="choose_folder">Choose download folder</string><string name="appearance">Appearance</string><string name="dark_glass">3D dark glass</string>
     <string name="language">Language</string><string name="download_added">Download added to the queue</string>
+    <string name="pause">Pause</string><string name="resume">Resume</string><string name="downloading">Downloading</string><string name="completed">Completed</string><string name="paused">Paused</string><string name="failed">Failed</string><string name="interrupted">Interrupted</string>
 </resources>
