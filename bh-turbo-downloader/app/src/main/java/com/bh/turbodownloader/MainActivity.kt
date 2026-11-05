@@ -339,13 +339,6 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>) {
                 }
             }
         }
-        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
-            Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Icon(Icons.Default.Folder, null, tint = Mint, modifier = Modifier.size(42.dp))
-                Text("Nothing here yet", color = Color.White, fontWeight = FontWeight.Bold)
-                Text("Your active, paused and completed downloads will be organized here.", color = Muted, fontSize = 12.sp)
-            }
-        }
     }
 }
 
