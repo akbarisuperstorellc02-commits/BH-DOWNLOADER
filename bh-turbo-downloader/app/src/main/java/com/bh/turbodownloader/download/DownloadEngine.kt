@@ -34,6 +34,7 @@ class DownloadEngine(
     fun download(
         url: String,
         destination: File,
+        resume: Boolean = false,
         onProgress: (downloaded: Long, total: Long) -> Unit = { _, _ -> }
     ): Result {
         cancelled.set(false)
@@ -42,13 +43,17 @@ class DownloadEngine(
         }
         destination.parentFile?.mkdirs()
         val temp = File(destination.parentFile, destination.name + ".bhpart")
-        if (temp.exists()) temp.delete()
+        val existingBytes = if (resume && temp.exists()) temp.length() else 0L
+        if (!resume && temp.exists()) temp.delete()
 
         val metadata = probe(url)
         val total = metadata.first
-        val useRanges = metadata.second && total > 0L
+        val useRanges = metadata.second && total > 0L && existingBytes == 0L
         return try {
-            if (useRanges) {
+            if (existingBytes > 0L) {
+                val resumed = downloadSingle(url, temp, total, onProgress, existingBytes)
+                Result(commit(temp, destination), resumed, false)
+            } else if (useRanges) {
                 try {
                     downloadInRanges(url, temp, total, onProgress)
                     Result(commit(temp, destination), total, true)
@@ -63,7 +68,7 @@ class DownloadEngine(
                 Result(commit(temp, destination), bytes, false)
             }
         } catch (e: Exception) {
-            temp.delete()
+            if (!cancelled.get() && e.message != "Download cancelled") temp.delete()
             throw e
         }
     }
@@ -139,16 +144,26 @@ class DownloadEngine(
         url: String,
         temp: File,
         expectedTotal: Long,
-        onProgress: (Long, Long) -> Unit
+        onProgress: (Long, Long) -> Unit,
+        resumeFrom: Long = 0L
     ): Long {
-        val request = Request.Builder().url(url).get().build()
-        client.newCall(request).execute().use { response ->
+        val requestBuilder = Request.Builder().url(url).get()
+        if (resumeFrom > 0L) requestBuilder.header("Range", "bytes=$resumeFrom-")
+        client.newCall(requestBuilder.build()).execute().use { response ->
+            if (resumeFrom > 0L && response.code != 206) {
+                temp.delete()
+                return downloadSingle(url, temp, expectedTotal, onProgress, 0L)
+            }
             if (!response.isSuccessful) throw IOException("Download failed: HTTP " + response.code)
             val body = response.body ?: throw IOException("Empty response body")
-            val total = body.contentLength().takeIf { it > 0 } ?: expectedTotal
-            var downloaded = 0L
+            val total = if (resumeFrom > 0L) {
+                val rangeLength = body.contentLength()
+                if (rangeLength > 0L) resumeFrom + rangeLength else expectedTotal
+            } else body.contentLength().takeIf { it > 0 } ?: expectedTotal
+            var downloaded = resumeFrom
             body.byteStream().use { input ->
-                temp.outputStream().buffered().use { output ->
+                val outputStream = if (resumeFrom > 0L) temp.outputStream().buffered() else temp.outputStream().buffered()
+                outputStream.use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE * 4)
                     while (true) {
                         checkCancelled()
