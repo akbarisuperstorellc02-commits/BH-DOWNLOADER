@@ -2,6 +2,7 @@ package com.bh.turbodownloader.download
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Call
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -11,6 +12,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * HTTP downloader with safe single-stream fallback.
@@ -27,8 +29,12 @@ class DownloadEngine(
 ) {
     data class Result(val file: File, val bytes: Long, val segmented: Boolean)
     private val cancelled = AtomicBoolean(false)
+    private val activeCalls = ConcurrentHashMap.newKeySet<Call>()
 
-    fun cancel() { cancelled.set(true) }
+    fun cancel() {
+        cancelled.set(true)
+        activeCalls.forEach { it.cancel() }
+    }
     fun isCancelled(): Boolean = cancelled.get()
 
     @Throws(IOException::class)
@@ -77,14 +83,18 @@ class DownloadEngine(
 
     private fun probe(url: String): Pair<Long, Boolean> {
         val request = Request.Builder().url(url).head().build()
+        val call = client.newCall(request)
+        activeCalls.add(call)
         return try {
-            client.newCall(request).execute().use { response ->
+            call.execute().use { response ->
                 val length = response.header("Content-Length")?.toLongOrNull() ?: -1L
-                val ranges = response.header("Accept-Ranges")?.equals("bytes", true) == true
+                val ranges = response.isSuccessful && response.header("Accept-Ranges")?.equals("bytes", true) == true
                 length to ranges
             }
         } catch (_: Exception) {
             -1L to false
+        } finally {
+            activeCalls.remove(call)
         }
     }
 
@@ -108,9 +118,12 @@ class DownloadEngine(
                 futures += executor.submit(Callable {
                     val request = Request.Builder().url(url)
                         .header("Range", "bytes=$start-$end").build()
-                    client.newCall(request).execute().use { response ->
-                        val expectedRangePrefix = "bytes $start-$end/"
-                        if (response.code != 206 || response.header("Content-Range")?.startsWith(expectedRangePrefix) != true) {
+                    val call = client.newCall(request)
+                    activeCalls.add(call)
+                    try {
+                    call.execute().use { response ->
+                        val expectedContentRange = "bytes $start-$end/$total"
+                        if (response.code != 206 || response.header("Content-Range") != expectedContentRange) {
                             throw IOException("Byte-range response did not match the requested segment")
                         }
                         val body = response.body ?: throw IOException("Empty response body")
@@ -130,6 +143,9 @@ class DownloadEngine(
                             }
                         }
                         if (position != end + 1) throw IOException("Incomplete byte range")
+                    }
+                    } finally {
+                        activeCalls.remove(call)
                     }
                     Unit
                 })
@@ -153,7 +169,10 @@ class DownloadEngine(
     ): Long {
         val requestBuilder = Request.Builder().url(url).get()
         if (resumeFrom > 0L) requestBuilder.header("Range", "bytes=$resumeFrom-")
-        client.newCall(requestBuilder.build()).execute().use { response ->
+        val call = client.newCall(requestBuilder.build())
+        activeCalls.add(call)
+        try {
+        call.execute().use { response ->
             val contentRange = response.header("Content-Range")
             if (resumeFrom > 0L && (response.code != 206 || contentRange?.startsWith("bytes $resumeFrom-") != true)) {
                 temp.delete()
@@ -184,6 +203,9 @@ class DownloadEngine(
                 throw IOException("Incomplete download: received $downloaded of $total bytes")
             }
             return downloaded
+        }
+        } finally {
+            activeCalls.remove(call)
         }
     }
 
