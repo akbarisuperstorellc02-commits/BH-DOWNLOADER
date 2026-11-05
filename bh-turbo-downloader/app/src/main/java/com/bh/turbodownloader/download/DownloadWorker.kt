@@ -32,26 +32,25 @@ class DownloadWorker(
 
         createNotificationChannel()
         setForeground(foregroundInfo(name, 0, true))
+        val coordinator = DownloadCoordinator.get(applicationContext)
+        val cancellationHook = currentCoroutineContext().job.invokeOnCompletion { cause ->
+            if (cause is CancellationException) coordinator.cancelDownload(id)
+        }
         return try {
-            DownloadCoordinator.get(applicationContext).executeWorker(
+            coordinator.executeWorker(
                 id = id,
                 url = url,
                 name = name,
                 resume = resume
             )
             Result.success()
-        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+        } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             Result.failure()
+        } finally {
+            cancellationHook.dispose()
         }
-    }
-
-    override fun onStopped() {
-        inputData.getString(KEY_ID)?.let {
-            DownloadCoordinator.get(applicationContext).cancelDownload(it)
-        }
-        super.onStopped()
     }
 
     private fun createNotificationChannel() {
