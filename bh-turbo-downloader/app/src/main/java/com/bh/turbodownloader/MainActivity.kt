@@ -12,6 +12,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.webkit.WebSettings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -101,6 +103,13 @@ private fun TurboApp() {
     val coordinator = remember { DownloadCoordinator(context) }
     val downloads by coordinator.items.collectAsState()
     DisposableEffect(coordinator) { onDispose { coordinator.close() } }
+    val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            runCatching { context.contentResolver.takePersistableUriPermission(uri, flags) }
+            coordinator.setDestinationTree(uri)
+        }
+    }
     val startDownload: (String) -> String = { link ->
         try {
             coordinator.start(link)
@@ -124,7 +133,7 @@ private fun TurboApp() {
                     0 -> HomeScreen(downloads, startDownload)
                     1 -> BrowserScreen(startDownload)
                     2 -> LibraryScreen(downloads)
-                    else -> SettingsScreen()
+                    else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) })
                 }
                 NavigationBar(
                     containerColor = Color(0xFF0D1628),
@@ -350,12 +359,16 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>) {
 }
 
 @Composable
-private fun SettingsScreen() {
+private fun SettingsScreen(onChooseFolder: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
         Text("PREFERENCES", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
         Text("Settings", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
         SettingRow("Download mode", "Maximum performance", Icons.Default.Bolt)
-        SettingRow("Save location", "Download / TurboBH", Icons.Default.Folder)
+        SettingRow("Save location", "Download / TurboBH or selected folder", Icons.Default.Folder)
+        Button(onClick = onChooseFolder, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
+            Icon(Icons.Default.Folder, null)
+            Text("  Choose download folder", fontWeight = FontWeight.Bold)
+        }
         SettingRow("Appearance", "3D dark glass", Icons.Default.CheckCircle)
         SettingRow("Language", "English • Dari • Pashto • Arabic", Icons.Default.Language)
     }
