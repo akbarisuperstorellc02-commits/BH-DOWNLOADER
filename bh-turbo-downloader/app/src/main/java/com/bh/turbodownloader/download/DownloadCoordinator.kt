@@ -144,9 +144,9 @@ class DownloadCoordinator private constructor(context: Context) {
         } catch (error: Exception) {
             target.delete()
             throw error
-        } finally {
-            source.delete()
         }
+        // Keep the durable source file if publishing fails so the user can retry.
+        source.delete()
     }
 
     private fun publishToPublicDownloads(source: File, fileName: String) {
@@ -167,9 +167,9 @@ class DownloadCoordinator private constructor(context: Context) {
         } catch (error: Exception) {
             resolver.delete(uri, null, null)
             throw error
-        } finally {
-            source.delete()
         }
+        // Delete the app-private copy only after MediaStore confirms publication.
+        source.delete()
     }
 
     private fun safeFileName(value: String): String {
