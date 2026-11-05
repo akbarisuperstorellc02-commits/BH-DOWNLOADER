@@ -36,7 +36,14 @@ data class DownloadUiItem(
         get() = if (total > 0L) (downloaded.toFloat() / total).coerceIn(0f, 1f) else null
 }
 
-class DownloadCoordinator(context: Context) {
+class DownloadCoordinator private constructor(context: Context) {
+    companion object {
+        @Volatile private var instance: DownloadCoordinator? = null
+        fun get(context: Context): DownloadCoordinator = instance ?: synchronized(this) {
+            instance ?: DownloadCoordinator(context.applicationContext).also { instance = it }
+        }
+    }
+
     private val appContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val jobs = ConcurrentHashMap<String, Job>()
