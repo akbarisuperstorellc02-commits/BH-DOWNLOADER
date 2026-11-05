@@ -32,7 +32,8 @@ data class DownloadUiItem(
     val downloaded: Long = 0L,
     val total: Long = -1L,
     val status: String = "Queued",
-    val error: String? = null
+    val error: String? = null,
+    val speedBytesPerSecond: Long = 0L
 ) {
     val progress: Float?
         get() = if (total > 0L) (downloaded.toFloat() / total).coerceIn(0f, 1f) else null
@@ -108,11 +109,21 @@ class DownloadCoordinator private constructor(context: Context) {
         update { list -> list.map { if (it.id == id) it.copy(status = "Downloading", error = null) else it } }
         try {
             var lastPersistedBytes = 0L
+            var lastSpeedBytes = 0L
+            var lastSpeedTime = android.os.SystemClock.elapsedRealtime()
+            var currentSpeed = 0L
             val result = engine.download(url, temp, shouldResume) { downloaded, total ->
+                val now = android.os.SystemClock.elapsedRealtime()
+                val elapsed = now - lastSpeedTime
+                if (elapsed >= 500L) {
+                    currentSpeed = ((downloaded - lastSpeedBytes).coerceAtLeast(0L) * 1000L) / elapsed
+                    lastSpeedBytes = downloaded
+                    lastSpeedTime = now
+                }
                 val checkpoint = downloaded - lastPersistedBytes >= 512L * 1024L
                 if (checkpoint) lastPersistedBytes = downloaded
                 update(persist = checkpoint) { list -> list.map {
-                    if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
+                    if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading", speedBytesPerSecond = currentSpeed) else it
                 } }
             }
             val selectedTree = appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
@@ -130,7 +141,7 @@ class DownloadCoordinator private constructor(context: Context) {
                 if (!result.file.renameTo(finalFile)) result.file.copyTo(finalFile, overwrite = true)
             }
             update { list -> list.map {
-                if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = null) else it
+                if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = null, speedBytesPerSecond = 0L) else it
             } }
         } catch (cancelled: CancellationException) {
             engine.cancel()
@@ -141,7 +152,8 @@ class DownloadCoordinator private constructor(context: Context) {
             update { list -> list.map {
                 if (it.id == id) it.copy(
                     status = if (paused) "Paused" else "Failed",
-                    error = if (paused) null else (error.message ?: "Download failed")
+                    error = if (paused) null else (error.message ?: "Download failed"),
+                    speedBytesPerSecond = 0L
                 ) else it
             } }
             throw error
@@ -172,10 +184,10 @@ class DownloadCoordinator private constructor(context: Context) {
         val target = tree.createFile("application/octet-stream", candidate)
             ?: throw IllegalStateException("Could not create file in selected folder")
         try {
-            appContext.contentResolver.openOutputStream(target.uri)?.use { output ->
+            val copied = appContext.contentResolver.openOutputStream(target.uri)?.use { output ->
                 source.inputStream().buffered().use { input -> input.copyTo(output) }
             } ?: throw IllegalStateException("Could not open selected destination")
-            if (target.length() != source.length()) throw IllegalStateException("Destination verification failed")
+            if (copied != source.length()) throw IllegalStateException("Destination copy incomplete: $copied of ${source.length()} bytes")
         } catch (error: Exception) {
             target.delete()
             throw error
@@ -194,13 +206,10 @@ class DownloadCoordinator private constructor(context: Context) {
         val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
             ?: throw IllegalStateException("Unable to create file in Download/TurboBH")
         try {
-            resolver.openOutputStream(uri)?.use { output ->
+            val copied = resolver.openOutputStream(uri)?.use { output ->
                 source.inputStream().buffered().use { input -> input.copyTo(output) }
             } ?: throw IllegalStateException("Unable to open destination file")
-            val copied = resolver.query(uri, arrayOf(MediaStore.Downloads.SIZE), null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) cursor.getLong(0) else -1L
-            } ?: -1L
-            if (copied != source.length()) throw IllegalStateException("Destination verification failed")
+            if (copied != source.length()) throw IllegalStateException("Destination copy incomplete: $copied of ${source.length()} bytes")
             val updated = resolver.update(uri, ContentValues().apply {
                 put(MediaStore.Downloads.IS_PENDING, 0)
             }, null, null)
