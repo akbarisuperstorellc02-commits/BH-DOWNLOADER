@@ -156,9 +156,11 @@ class DownloadEngine(
             futures.forEach { it.get() }
         } catch (e: Exception) {
             futures.forEach { it.cancel(true) }
-            // Stop sibling HTTP requests after a failed segment, but preserve the
-            // partial file when the user pauses so a later resume can continue.
+            // Stop sibling requests. A segmented file is preallocated to its full
+            // length, so its length cannot be used as a resume offset. Delete it
+            // on cancellation rather than risk treating sparse holes as downloaded.
             segmentCalls.forEach { it.cancel() }
+            if (cancelled.get()) temp.delete()
             throw (e.cause as? IOException ?: IOException("Segmented download failed", e))
         } finally {
             executor.shutdownNow()
