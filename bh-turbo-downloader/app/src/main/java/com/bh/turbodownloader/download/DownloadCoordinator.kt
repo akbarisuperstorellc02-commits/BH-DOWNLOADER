@@ -98,7 +98,8 @@ class DownloadCoordinator private constructor(context: Context) {
         id: String,
         url: String,
         name: String,
-        resume: Boolean\n    ) = withContext(Dispatchers.IO) {
+        resume: Boolean
+    ) = withContext(Dispatchers.IO) {
         val tempDir = File(appContext.filesDir, "downloads").apply { mkdirs() }
         val temp = File(tempDir, "bh_" + id + ".download")
         val engine = DownloadEngine()
