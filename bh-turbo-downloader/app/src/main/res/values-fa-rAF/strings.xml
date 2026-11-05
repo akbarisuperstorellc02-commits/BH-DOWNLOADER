@@ -17,4 +17,5 @@
     <string name="refresh">بارگذاری دوباره</string>
     <string name="language_restart_hint">زبان انتخاب‌شده به‌صورت خودکار اعمال می‌شود.</string>
     <string name="remove">حذف از فهرست</string>
+    <string name="eta">زمان باقی‌مانده</string>
 </resources>
