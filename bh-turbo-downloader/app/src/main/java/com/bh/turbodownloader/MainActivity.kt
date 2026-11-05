@@ -1,8 +1,11 @@
 package com.bh.turbodownloader
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.LinearProgressIndicator
 import com.bh.turbodownloader.download.DownloadCoordinator
 import com.bh.turbodownloader.download.DownloadUiItem
@@ -44,6 +47,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -101,6 +106,14 @@ private fun TurboApp() {
     val context = LocalContext.current
     val coordinator = remember { DownloadCoordinator(context) }
     val downloads by coordinator.items.collectAsState()
+    var selectedLanguage by remember {
+        mutableStateOf(context.getSharedPreferences("bh_settings", 0).getString("language", "en-US") ?: "en-US")
+    }
+    val changeLanguage: (String) -> Unit = { tag ->
+        selectedLanguage = tag
+        context.getSharedPreferences("bh_settings", 0).edit().putString("language", tag).apply()
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+    }
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -111,7 +124,7 @@ private fun TurboApp() {
     val startDownload: (String) -> String = { link ->
         try {
             coordinator.start(link)
-            "Download added to the queue"
+            stringResource(R.string.download_added)
         } catch (error: Exception) {
             error.message ?: "Could not start download"
         }
@@ -131,17 +144,17 @@ private fun TurboApp() {
                     0 -> HomeScreen(downloads, startDownload)
                     1 -> BrowserScreen(startDownload)
                     2 -> LibraryScreen(downloads, coordinator)
-                    else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) })
+                    else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) }, selectedLanguage = selectedLanguage, onLanguageChange = changeLanguage)
                 }
                 NavigationBar(
                     containerColor = Color(0xFF0D1628),
                     contentColor = Mint
                 ) {
                     val items = listOf(
-                        Triple("Home", Icons.Default.Bolt, 0),
-                        Triple("Browser", Icons.Default.Explore, 1),
-                        Triple("Files", Icons.Default.Folder, 2),
-                        Triple("Settings", Icons.Default.Settings, 3)
+                        Triple(stringResource(R.string.home), Icons.Default.Bolt, 0),
+                        Triple(stringResource(R.string.browser), Icons.Default.Explore, 1),
+                        Triple(stringResource(R.string.files), Icons.Default.Folder, 2),
+                        Triple(stringResource(R.string.settings), Icons.Default.Settings, 3)
                     )
                     items.forEach { (label, icon, index) ->
                         NavigationBarItem(
@@ -160,7 +173,7 @@ private fun TurboApp() {
 @Composable
 private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String) -> String) {
     var url by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("Ready for your next download") }
+    var message by remember { mutableStateOf(stringResource(R.string.ready_download)) }
     Column(
         Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 22.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
@@ -168,8 +181,8 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("BH TURBO", color = Mint, fontSize = 12.sp, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
-                Text("Downloader", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
-                Text("Your files. At full speed.", color = Muted, fontSize = 12.sp)
+                Text(stringResource(R.string.downloader), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.tagline), color = Muted, fontSize = 12.sp)
             }
             Box(
                 Modifier.size(48.dp).shadow(14.dp, CircleShape)
@@ -190,15 +203,15 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
         ) {
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("New download", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.new_download), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.weight(1f))
                     Icon(Icons.Default.MoreHoriz, null, tint = Muted)
                 }
                 OutlinedTextField(
                     value = url,
-                    onValueChange = { url = it; message = "Link ready to check" },
+                    onValueChange = { url = it; message = stringResource(R.string.link_ready) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("Paste a file URL") },
+                    placeholder = { Text(stringResource(R.string.paste_url)) },
                     leadingIcon = { Icon(Icons.Default.Language, null, tint = Mint) },
                     shape = RoundedCornerShape(16.dp)
                 )
@@ -219,8 +232,8 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("RECENT DOWNLOADS", color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp, modifier = Modifier.weight(1f))
-            Text("VIEW ALL", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.recent_downloads), color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.view_all), color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -234,14 +247,14 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
                     contentAlignment = Alignment.Center
                 ) { Icon(Icons.Default.Folder, null, tint = Mint) }
                 Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Text("Your download space", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                    Text("Downloaded files will appear here", color = Muted, fontSize = 11.sp)
+                    Text(stringResource(R.string.download_space), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    Text(stringResource(R.string.download_space_hint), color = Muted, fontSize = 11.sp)
                 }
                 Icon(Icons.Default.ArrowDownward, null, tint = Muted)
             }
         }
         Spacer(Modifier.weight(1f))
-        Text("MAXIMUM MODE  •  SECURE CONNECTION", color = Color(0xFF60718F), fontSize = 9.sp, letterSpacing = 1.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Text(stringResource(R.string.maximum_mode), color = Color(0xFF60718F), fontSize = 9.sp, letterSpacing = 1.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
     }
 }
 
@@ -261,17 +274,17 @@ private fun HeroSpeedCard() {
         Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Speed, null, tint = Mint, modifier = Modifier.size(17.dp))
-                Text("TURBO ENGINE", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+                Text(stringResource(R.string.turbo_engine), color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
                 Spacer(Modifier.weight(1f))
                 Box(Modifier.clip(CircleShape).background(Color(0x3354F0D0)).padding(horizontal = 9.dp, vertical = 5.dp)) {
                     Text("MAXIMUM", color = Mint, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
             }
             Text("Built for\nmaximum speed.", color = Color.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.ExtraBold)
-            Text("Smart connections • segmented transfers", color = Color(0xFFB7C8DE), fontSize = 11.sp)
+            Text(stringResource(R.string.segmented_transfers), color = Color(0xFFB7C8DE), fontSize = 11.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                FeatureChip("Multi-connection")
-                FeatureChip("Smart fallback")
+                FeatureChip(stringResource(R.string.multi_connection))
+                FeatureChip(stringResource(R.string.smart_fallback))
             }
         }
     }
@@ -289,14 +302,14 @@ private fun BrowserScreen(onStartDownload: (String) -> String) {
     var address by remember { mutableStateOf("https://") }
     var currentUrl by remember { mutableStateOf("https://www.google.com") }
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("INTERNAL BROWSER", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-        Text("Explore & download", color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
+        Text(stringResource(R.string.internal_browser), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+        Text(stringResource(R.string.explore_download), color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
         OutlinedTextField(
             value = address,
             onValueChange = { address = it },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            placeholder = { Text("Enter website address") },
+            placeholder = { Text(stringResource(R.string.website_address)) },
             leadingIcon = { Icon(Icons.Default.Language, null, tint = Mint) },
             shape = RoundedCornerShape(15.dp)
         )
@@ -304,7 +317,7 @@ private fun BrowserScreen(onStartDownload: (String) -> String) {
             val target = if (address.startsWith("http://") || address.startsWith("https://")) address else "https://$address"
             currentUrl = target
         }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
-            Text("Open website")
+            Text(stringResource(R.string.open_website))
         }
         Card(Modifier.weight(1f).fillMaxWidth(), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
             AndroidView(
@@ -334,10 +347,10 @@ private fun BrowserScreen(onStartDownload: (String) -> String) {
 @Composable
 private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: DownloadCoordinator) {
     Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
-        Text("MY LIBRARY", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-        Text("Your downloads", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+        Text(stringResource(R.string.my_library), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+        Text(stringResource(R.string.your_downloads), color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
         if (downloads.isEmpty()) {
-            Text("No downloads yet", color = Muted, fontSize = 12.sp)
+            Text(stringResource(R.string.no_downloads), color = Muted, fontSize = 12.sp)
         } else {
             downloads.reversed().forEach { item ->
                 Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
@@ -368,18 +381,40 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: Download
 }
 
 @Composable
-private fun SettingsScreen(onChooseFolder: () -> Unit) {
+private fun SettingsScreen(onChooseFolder: () -> Unit, selectedLanguage: String, onLanguageChange: (String) -> Unit) {
     Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
-        Text("PREFERENCES", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-        Text("Settings", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
-        SettingRow("Download mode", "Maximum performance", Icons.Default.Bolt)
-        SettingRow("Save location", "Download / TurboBH or selected folder", Icons.Default.Folder)
+        Text(stringResource(R.string.preferences), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+        Text(stringResource(R.string.settings), color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+        SettingRow(stringResource(R.string.download_mode), stringResource(R.string.maximum_performance), Icons.Default.Bolt)
+        SettingRow(stringResource(R.string.save_location), "Download / TurboBH or selected folder", Icons.Default.Folder)
         Button(onClick = onChooseFolder, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
             Icon(Icons.Default.Folder, null)
-            Text("  Choose download folder", fontWeight = FontWeight.Bold)
+            Text("  " + stringResource(R.string.choose_folder), fontWeight = FontWeight.Bold)
         }
-        SettingRow("Appearance", "3D dark glass", Icons.Default.CheckCircle)
-        SettingRow("Language", "English • Dari • Pashto • Arabic", Icons.Default.Language)
+        SettingRow(stringResource(R.string.appearance), stringResource(R.string.dark_glass), Icons.Default.CheckCircle)
+        LanguagePicker(selectedLanguage, onLanguageChange)
+    }
+}
+
+
+@Composable
+private fun LanguagePicker(selected: String, onSelect: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val languages = listOf("en-US" to "English", "fa-AF" to "دری افغانستان", "ps-AF" to "پښتو", "ar" to "العربية")
+    Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
+        Box(Modifier.fillMaxWidth().padding(16.dp)) {
+            Column {
+                Text(stringResource(R.string.language), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                Button(onClick = { expanded = true }, colors = ButtonDefaults.buttonColors(containerColor = SurfaceB)) {
+                    Text(languages.firstOrNull { it.first == selected }?.second ?: "English")
+                }
+            }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                languages.forEach { (tag, label) ->
+                    DropdownMenuItem(text = { Text(label) }, onClick = { expanded = false; onSelect(tag) })
+                }
+            }
+        }
     }
 }
 
