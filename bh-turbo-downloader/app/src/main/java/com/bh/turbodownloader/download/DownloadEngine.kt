@@ -108,8 +108,9 @@ class DownloadEngine(
                     val request = Request.Builder().url(url)
                         .header("Range", "bytes=$start-$end").build()
                     client.newCall(request).execute().use { response ->
-                        if (response.code != 206) {
-                            throw IOException("Byte-range request rejected; HTTP " + response.code)
+                        val expectedRangePrefix = "bytes $start-$end/"
+                        if (response.code != 206 || response.header("Content-Range")?.startsWith(expectedRangePrefix) != true) {
+                            throw IOException("Byte-range response did not match the requested segment")
                         }
                         val body = response.body ?: throw IOException("Empty response body")
                         var position = start
