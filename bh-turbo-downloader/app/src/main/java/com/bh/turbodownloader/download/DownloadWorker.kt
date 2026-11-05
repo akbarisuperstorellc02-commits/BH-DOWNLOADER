@@ -31,7 +31,7 @@ class DownloadWorker(
         val resume = inputData.getBoolean(KEY_RESUME, false)
 
         createNotificationChannel()
-        setForeground(foregroundInfo(name, 0, false))
+        setForeground(foregroundInfo(name, 0, true))
         return try {
             DownloadCoordinator.get(applicationContext).executeWorker(
                 id = id,
@@ -40,8 +40,8 @@ class DownloadWorker(
                 resume = resume
             )
             Result.success()
-        } catch (_: kotlinx.coroutines.CancellationException) {
-            Result.failure()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
         } catch (_: Exception) {
             Result.failure()
         }
