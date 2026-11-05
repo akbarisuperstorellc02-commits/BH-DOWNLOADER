@@ -8,4 +8,13 @@
     <string name="my_library">زما کتابتون</string><string name="your_downloads">ستاسو ډاونلوډونه</string><string name="no_downloads">تر اوسه ډاونلوډ نشته</string><string name="preferences">غوره‌توبونه</string>
     <string name="download_mode">د ډاونلوډ حالت</string><string name="maximum_performance">اعظمي فعالیت</string><string name="save_location">د خوندي کولو ځای</string><string name="choose_folder">د ډاونلوډ پوښۍ وټاکئ</string><string name="appearance">بڼه</string><string name="dark_glass">درې‌بعدي تیاره ښیښه</string><string name="language">ژبه</string><string name="download_added">ډاونلوډ لېست ته اضافه شو</string>
     <string name="pause">ودرول</string><string name="resume">بیا پیل</string><string name="downloading">ډاونلوډ روان دی</string><string name="completed">بشپړ شو</string><string name="paused">ودرول شو</string><string name="failed">ناکام</string><string name="interrupted">پرې شوی</string>
+    <string name="download_failed">ډاونلوډ پیل نه شو</string>
+    <string name="clear">پاکول</string>
+    <string name="calculating_size">د فایل اندازه محاسبه کېږي…</string>
+    <string name="queued">په کتار کې</string>
+    <string name="back">شاته</string>
+    <string name="forward">مخکې</string>
+    <string name="refresh">بیا تازه کول</string>
+    <string name="language_restart_hint">ټاکل شوې ژبه په خپله پلي کېږي.</string>
+    <string name="remove">له لېست څخه لرې کول</string>
 </resources>
