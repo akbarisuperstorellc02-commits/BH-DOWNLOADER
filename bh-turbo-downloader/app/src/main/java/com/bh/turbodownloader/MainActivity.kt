@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -175,7 +174,9 @@ private fun TurboApp() {
 @Composable
 private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String) -> String) {
     var url by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf(stringResource(R.string.ready_download)) }
+    val readyMessage = stringResource(R.string.ready_download)
+    val linkReadyMessage = stringResource(R.string.link_ready)
+    var message by remember { mutableStateOf(readyMessage) }
     Column(
         Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 22.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp)
@@ -227,7 +228,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
                     colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))
                 ) {
                     Icon(Icons.Default.Download, null)
-                    Text("  Start download", fontWeight = FontWeight.Bold)
+                    Text("  " + stringResource(R.string.start_download), fontWeight = FontWeight.Bold)
                 }
                 Text(message, color = Muted, fontSize = 11.sp)
             }
@@ -292,7 +293,7 @@ private fun HeroSpeedCard() {
                     Text("MAXIMUM", color = Mint, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                 }
             }
-            Text("Built for\nmaximum speed.", color = Color.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.ExtraBold)
+            Text(stringResource(R.string.built_speed), color = Color.White, fontSize = 24.sp, lineHeight = 28.sp, fontWeight = FontWeight.ExtraBold)
             Text(stringResource(R.string.segmented_transfers), color = Color(0xFFB7C8DE), fontSize = 11.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 FeatureChip(stringResource(R.string.multi_connection))
