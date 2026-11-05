@@ -141,11 +141,15 @@ private fun TurboApp() {
                     )
             )
             Column(Modifier.fillMaxSize()) {
-                when (selected) {
-                    0 -> HomeScreen(downloads, startDownload)
-                    1 -> BrowserScreen(startDownload)
-                    2 -> LibraryScreen(downloads, coordinator)
-                    else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) }, selectedLanguage = selectedLanguage, onLanguageChange = changeLanguage)
+                // Reserve a dedicated flexible area for each screen so its fillMaxSize()
+                // cannot push the bottom navigation bar outside the visible window.
+                Box(Modifier.weight(1f).fillMaxWidth()) {
+                    when (selected) {
+                        0 -> HomeScreen(downloads, startDownload)
+                        1 -> BrowserScreen(startDownload)
+                        2 -> LibraryScreen(downloads, coordinator)
+                        else -> SettingsScreen(onChooseFolder = { folderPicker.launch(null) }, selectedLanguage = selectedLanguage, onLanguageChange = changeLanguage)
+                    }
                 }
                 NavigationBar(
                     containerColor = Color(0xFF0D1628),
