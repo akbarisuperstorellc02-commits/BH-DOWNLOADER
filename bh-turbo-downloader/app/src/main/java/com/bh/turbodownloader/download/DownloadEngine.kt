@@ -24,6 +24,13 @@ class DownloadEngine(
         .connectTimeout(20, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .followRedirects(true)
+        .addInterceptor { chain ->
+            val request = chain.request().newBuilder()
+                .header("User-Agent", "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36")
+                .header("Accept", "*/*")
+                .build()
+            chain.proceed(request)
+        }
         .build(),
     private val parallelism: Int = 8
 ) {
