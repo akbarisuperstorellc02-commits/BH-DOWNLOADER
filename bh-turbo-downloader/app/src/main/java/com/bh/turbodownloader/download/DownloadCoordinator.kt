@@ -59,9 +59,8 @@ class DownloadCoordinator(context: Context) {
                         if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
                     } }
                 }
-                val savedLocation = if (Build.VERSION.SDK_INT >= 29) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     publishToPublicDownloads(temp, name)
-                    "Download/TurboBH"
                 } else {
                     val legacyDir = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                         ?: File(appContext.filesDir, "downloads")
@@ -69,10 +68,9 @@ class DownloadCoordinator(context: Context) {
                     val legacyFile = File(legacyDir, name)
                     val finalFile = if (legacyFile.exists()) File(legacyDir, id.take(8) + "_" + name) else legacyFile
                     if (temp.renameTo(finalFile).not()) temp.copyTo(finalFile, overwrite = true)
-                    finalFile.absolutePath
                 }
                 update { list -> list.map {
-                    if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = "Saved: " + savedLocation) else it
+                    if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = null) else it
                 } }
             } catch (error: Exception) {
                 temp.delete()
