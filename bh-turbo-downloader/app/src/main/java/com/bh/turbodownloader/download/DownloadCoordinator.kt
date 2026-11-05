@@ -10,6 +10,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
@@ -46,7 +47,14 @@ class DownloadCoordinator(context: Context) {
         scope.launch {
             val base = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
                 ?: File(appContext.filesDir, "downloads")
-            val destination = File(base, name)
+            base.mkdirs()
+            val requested = File(base, name)
+            val destination = if (requested.exists()) {
+                val dot = name.lastIndexOf('.')
+                val stem = if (dot > 0) name.substring(0, dot) else name
+                val extension = if (dot > 0) name.substring(dot) else ""
+                File(base, stem + "_" + id.take(8) + extension)
+            } else requested
             val engine = DownloadEngine()
             setStatus(id, "Downloading")
             try {
@@ -76,7 +84,7 @@ class DownloadCoordinator(context: Context) {
         update { list -> list.map { if (it.id == id) it.copy(status = status) else it } }
 
     private fun update(transform: (List<DownloadUiItem>) -> List<DownloadUiItem>) {
-        _items.value = transform(_items.value)
+        _items.update(transform)
     }
 
     fun close() { scope.cancel() }
