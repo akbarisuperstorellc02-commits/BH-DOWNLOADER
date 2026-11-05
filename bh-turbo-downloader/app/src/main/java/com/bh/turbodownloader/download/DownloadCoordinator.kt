@@ -111,7 +111,7 @@ class DownloadCoordinator private constructor(context: Context) {
             var lastPersistedBytes = 0L
             var lastSpeedBytes = 0L
             var lastSpeedTime = android.os.SystemClock.elapsedRealtime()
-            var currentSpeed = 0L
+            var currentSpeed = 0L // refreshed on every progress callback for responsive short downloads
             val result = engine.download(url, temp, shouldResume) { downloaded, total ->
                 val now = android.os.SystemClock.elapsedRealtime()
                 val elapsed = now - lastSpeedTime
