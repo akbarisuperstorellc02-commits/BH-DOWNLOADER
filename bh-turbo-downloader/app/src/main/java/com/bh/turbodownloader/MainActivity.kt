@@ -119,7 +119,7 @@ private fun TurboApp() {
         if (uri != null) {
             val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             runCatching { context.contentResolver.takePersistableUriPermission(uri, flags) }
-            coordinator.setDestinationTree(uri)
+                .onSuccess { coordinator.setDestinationTree(uri) }
         }
     }
     val startDownload: (String) -> String = { link ->
