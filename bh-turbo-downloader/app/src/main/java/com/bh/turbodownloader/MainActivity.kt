@@ -237,22 +237,32 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
             Text(stringResource(R.string.recent_downloads), color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp, modifier = Modifier.weight(1f))
             Text(stringResource(R.string.view_all), color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         }
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceA)
-        ) {
-            Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(42.dp).clip(RoundedCornerShape(13.dp))
-                        .background(Color(0xFF203753)),
-                    contentAlignment = Alignment.Center
-                ) { Icon(Icons.Default.Folder, null, tint = Mint) }
-                Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Text(stringResource(R.string.download_space), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                    Text(stringResource(R.string.download_space_hint), color = Muted, fontSize = 11.sp)
+        if (downloads.isEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = SurfaceA)
+            ) {
+                Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Folder, null, tint = Mint, modifier = Modifier.size(32.dp))
+                    Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                        Text(stringResource(R.string.download_space), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                        Text(stringResource(R.string.download_space_hint), color = Muted, fontSize = 11.sp)
+                    }
                 }
-                Icon(Icons.Default.ArrowDownward, null, tint = Muted)
+            }
+        } else {
+            downloads.takeLast(2).reversed().forEach { item ->
+                Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
+                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(item.fileName, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(item.status, color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "—", color = Muted, fontSize = 10.sp)
+                        }
+                        if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
+                    }
+                }
             }
         }
         Spacer(Modifier.weight(1f))
