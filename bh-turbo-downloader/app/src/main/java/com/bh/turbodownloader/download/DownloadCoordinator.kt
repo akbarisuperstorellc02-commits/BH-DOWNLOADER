@@ -103,11 +103,12 @@ class DownloadCoordinator private constructor(context: Context) {
         val tempDir = File(appContext.filesDir, "downloads").apply { mkdirs() }
         val temp = File(tempDir, "bh_" + id + ".download")
         val engine = DownloadEngine()
+        val shouldResume = resume || File(temp.parentFile, temp.name + ".bhpart").exists()
         engines[id] = engine
         update { list -> list.map { if (it.id == id) it.copy(status = "Downloading", error = null) else it } }
         try {
             var lastPersistedBytes = 0L
-            val result = engine.download(url, temp, resume) { downloaded, total ->
+            val result = engine.download(url, temp, shouldResume) { downloaded, total ->
                 val checkpoint = downloaded - lastPersistedBytes >= 512L * 1024L
                 if (checkpoint) lastPersistedBytes = downloaded
                 update(persist = checkpoint) { list -> list.map {
