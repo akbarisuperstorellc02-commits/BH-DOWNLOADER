@@ -162,7 +162,7 @@ class DownloadEngine(
             } else body.contentLength().takeIf { it > 0 } ?: expectedTotal
             var downloaded = resumeFrom
             body.byteStream().use { input ->
-                val outputStream = if (resumeFrom > 0L) temp.outputStream().buffered() else temp.outputStream().buffered()
+                val outputStream = if (resumeFrom > 0L) java.io.FileOutputStream(temp, true).buffered() else temp.outputStream().buffered()
                 outputStream.use { output ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE * 4)
                     while (true) {
