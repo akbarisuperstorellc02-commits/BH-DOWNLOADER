@@ -257,7 +257,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
                     Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(item.fileName, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.status, color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            Text(statusLabel(item.status), color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
                             Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "—", color = Muted, fontSize = 10.sp)
                         }
                         if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
@@ -369,7 +369,7 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: Download
                     Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         Text(item.fileName, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.status, color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            Text(statusLabel(item.status), color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
                             Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "…", color = Muted, fontSize = 10.sp)
                         }
                         if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
@@ -377,12 +377,12 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: Download
                         if (item.status in listOf("Downloading", "Pausing")) {
                             Button(onClick = { coordinator.pause(item.id) }, colors = ButtonDefaults.buttonColors(containerColor = SurfaceB)) {
                                 Icon(Icons.Default.Pause, null)
-                                Text(" Pause")
+                                Text(" " + stringResource(R.string.pause))
                             }
                         } else if (item.status in listOf("Paused", "Interrupted", "Failed")) {
                             Button(onClick = { coordinator.resume(item.id) }, colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
                                 Icon(Icons.Default.PlayArrow, null)
-                                Text(" Resume")
+                                Text(" " + stringResource(R.string.resume))
                             }
                         }
                     }
@@ -390,6 +390,17 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: Download
             }
         }
     }
+}
+
+
+@Composable
+private fun statusLabel(status: String): String = when (status) {
+    "Downloading" -> stringResource(R.string.downloading)
+    "Completed" -> stringResource(R.string.completed)
+    "Paused", "Pausing" -> stringResource(R.string.paused)
+    "Failed" -> stringResource(R.string.failed)
+    "Interrupted" -> stringResource(R.string.interrupted)
+    else -> status
 }
 
 @Composable
