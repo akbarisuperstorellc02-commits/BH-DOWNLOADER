@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
 private fun TurboApp() {
     var selected by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    val coordinator = remember { DownloadCoordinator(context) }
+    val coordinator = remember { DownloadCoordinator.get(context) }
     val downloads by coordinator.items.collectAsState()
     val downloadAddedMessage = stringResource(R.string.download_added)
     val linkReadyMessage = stringResource(R.string.link_ready)
