@@ -15,4 +15,13 @@
     <string name="save_location">Save location</string><string name="choose_folder">Choose download folder</string><string name="appearance">Appearance</string><string name="dark_glass">3D dark glass</string>
     <string name="language">Language</string><string name="download_added">Download added to the queue</string>
     <string name="pause">Pause</string><string name="resume">Resume</string><string name="downloading">Downloading</string><string name="completed">Completed</string><string name="paused">Paused</string><string name="failed">Failed</string><string name="interrupted">Interrupted</string>
+    <string name="download_failed">Could not start the download</string>
+    <string name="clear">Clear</string>
+    <string name="calculating_size">Calculating file size…</string>
+    <string name="queued">Queued</string>
+    <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="refresh">Refresh</string>
+    <string name="language_restart_hint">The selected language is applied automatically.</string>
+    <string name="remove">Remove</string>
 </resources>
