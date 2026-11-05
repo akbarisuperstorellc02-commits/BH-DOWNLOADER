@@ -108,14 +108,15 @@ class DownloadCoordinator private constructor(context: Context) {
         engines[id] = engine
         update { list -> list.map { if (it.id == id) it.copy(status = "Downloading", error = null) else it } }
         try {
+            val startedAt = android.os.SystemClock.elapsedRealtime()
             var lastPersistedBytes = 0L
-            var lastSpeedBytes = 0L
-            var lastSpeedTime = android.os.SystemClock.elapsedRealtime()
-            var currentSpeed = 0L // refreshed on every progress callback for responsive short downloads
+            var lastSpeedBytes = _items.value.firstOrNull { it.id == id }?.downloaded ?: 0L
+            var lastSpeedTime = startedAt
+            var currentSpeed = 0L
             val result = engine.download(url, temp, shouldResume) { downloaded, total ->
                 val now = android.os.SystemClock.elapsedRealtime()
                 val elapsed = now - lastSpeedTime
-                if (elapsed > 0L) {
+                if (elapsed >= 400L) {
                     currentSpeed = ((downloaded - lastSpeedBytes).coerceAtLeast(0L) * 1000L) / elapsed
                     lastSpeedBytes = downloaded
                     lastSpeedTime = now
@@ -126,6 +127,8 @@ class DownloadCoordinator private constructor(context: Context) {
                     if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading", speedBytesPerSecond = currentSpeed) else it
                 } }
             }
+            val elapsedTotal = (android.os.SystemClock.elapsedRealtime() - startedAt).coerceAtLeast(1L)
+            val averageSpeed = (result.bytes * 1000L) / elapsedTotal
             val selectedTree = appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
                 .getString("destination_tree", null)?.let(Uri::parse)
             if (selectedTree != null) {
@@ -141,7 +144,7 @@ class DownloadCoordinator private constructor(context: Context) {
                 if (!result.file.renameTo(finalFile)) result.file.copyTo(finalFile, overwrite = true)
             }
             update { list -> list.map {
-                if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = null, speedBytesPerSecond = 0L) else it
+                if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = null, speedBytesPerSecond = averageSpeed) else it
             } }
         } catch (cancelled: CancellationException) {
             engine.cancel()
@@ -164,6 +167,12 @@ class DownloadCoordinator private constructor(context: Context) {
 
     fun cancelDownload(id: String) {
         engines[id]?.cancel()
+    }
+
+    fun removeFromHistory(id: String) {
+        engines[id]?.cancel()
+        workManager.cancelUniqueWork(workName(id))
+        update { list -> list.filterNot { it.id == id } }
     }
 
     fun setDestinationTree(uri: Uri) {
