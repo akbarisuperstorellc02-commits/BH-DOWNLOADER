@@ -251,13 +251,17 @@ private fun DownloadCard(item: DownloadUiItem, coordinator: DownloadCoordinator?
                 Text(item.fileName, color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
                 Text(statusLabel(item.status), color = Muted, fontSize = 10.sp)
             }
-            if (item.speedBytesPerSecond > 0L) Text(formatSpeed(item.speedBytesPerSecond), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            if (item.status == "Downloading" || item.status == "Completed") Text(formatSpeed(item.speedBytesPerSecond), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
         if (item.progress != null) {
             LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
             Row {
                 Text(formatBytes(item.downloaded) + " / " + formatBytes(item.total), color = Muted, fontSize = 10.sp, modifier = Modifier.weight(1f))
                 Text(((item.progress!! * 100).toInt()).toString() + "%", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+            if (item.status == "Downloading" && item.speedBytesPerSecond > 0L && item.total > item.downloaded) {
+                val secondsLeft = (item.total - item.downloaded) / item.speedBytesPerSecond
+                Text(stringResource(R.string.eta) + ": " + formatDuration(secondsLeft), color = Muted, fontSize = 10.sp)
             }
         } else if (item.status != "Completed") Text(stringResource(R.string.calculating_size), color = Muted, fontSize = 10.sp)
         item.error?.let { Text(it, color = Color(0xFFFF9292), fontSize = 10.sp) }
@@ -369,4 +373,13 @@ private fun formatBytes(value: Long): String = when {
     value >= 1024L * 1024L -> String.format(Locale.US, "%.1f MB", value / (1024.0 * 1024.0))
     value >= 1024L -> String.format(Locale.US, "%.1f KB", value / 1024.0)
     else -> String.format(Locale.US, "%d B", value)
+}
+
+private fun formatDuration(seconds: Long): String {
+    val safe = seconds.coerceAtLeast(0L)
+    val hours = safe / 3600L
+    val minutes = (safe % 3600L) / 60L
+    val secs = safe % 60L
+    return if (hours > 0L) String.format(Locale.US, "%d:%02d:%02d", hours, minutes, secs)
+    else String.format(Locale.US, "%02d:%02d", minutes, secs)
 }
