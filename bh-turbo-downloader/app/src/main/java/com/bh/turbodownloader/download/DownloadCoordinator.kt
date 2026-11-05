@@ -6,6 +6,7 @@ import android.os.Environment
 import android.os.Build
 import android.content.ContentValues
 import android.provider.MediaStore
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -59,7 +60,11 @@ class DownloadCoordinator(context: Context) {
                         if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
                     } }
                 }
-                if (Build.VERSION.SDK_INT >= 29) {
+                val selectedTree = appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
+                    .getString("destination_tree", null)?.let(Uri::parse)
+                if (selectedTree != null) {
+                    publishToSelectedFolder(temp, name, selectedTree)
+                } else if (Build.VERSION.SDK_INT >= 29) {
                     publishToPublicDownloads(temp, name)
                 } else {
                     val legacyDir = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
@@ -78,6 +83,37 @@ class DownloadCoordinator(context: Context) {
                     if (it.id == id) it.copy(status = "Failed", error = error.message ?: "Download failed") else it
                 } }
             }
+        }
+    }
+
+    fun setDestinationTree(uri: Uri) {
+        appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
+            .edit().putString("destination_tree", uri.toString()).apply()
+    }
+
+    private fun publishToSelectedFolder(source: File, fileName: String, treeUri: Uri) {
+        val tree = DocumentFile.fromTreeUri(appContext, treeUri)
+            ?: throw IllegalStateException("Selected folder is no longer available")
+        if (!tree.canWrite()) throw IllegalStateException("Selected folder is not writable")
+        val dot = fileName.lastIndexOf('.')
+        val stem = if (dot > 0) fileName.substring(0, dot) else fileName
+        val extension = if (dot > 0) fileName.substring(dot) else ""
+        var candidate = fileName
+        var suffix = 1
+        while (tree.findFile(candidate) != null) {
+            candidate = stem + "_" + suffix++ + extension
+        }
+        val target = tree.createFile("application/octet-stream", candidate)
+            ?: throw IllegalStateException("Could not create file in selected folder")
+        try {
+            appContext.contentResolver.openOutputStream(target.uri)?.use { output ->
+                source.inputStream().buffered().use { input -> input.copyTo(output) }
+            } ?: throw IllegalStateException("Could not open selected destination")
+        } catch (error: Exception) {
+            target.delete()
+            throw error
+        } finally {
+            source.delete()
         }
     }
 
