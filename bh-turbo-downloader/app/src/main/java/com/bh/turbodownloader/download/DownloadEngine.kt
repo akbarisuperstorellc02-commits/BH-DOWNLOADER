@@ -152,7 +152,8 @@ class DownloadEngine(
         val requestBuilder = Request.Builder().url(url).get()
         if (resumeFrom > 0L) requestBuilder.header("Range", "bytes=$resumeFrom-")
         client.newCall(requestBuilder.build()).execute().use { response ->
-            if (resumeFrom > 0L && response.code != 206) {
+            val contentRange = response.header("Content-Range")
+            if (resumeFrom > 0L && (response.code != 206 || contentRange?.startsWith("bytes $resumeFrom-") != true)) {
                 temp.delete()
                 return downloadSingle(url, temp, expectedTotal, onProgress, 0L)
             }
