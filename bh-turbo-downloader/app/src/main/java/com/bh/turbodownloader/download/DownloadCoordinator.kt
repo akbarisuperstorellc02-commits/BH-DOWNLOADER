@@ -98,9 +98,7 @@ class DownloadCoordinator private constructor(context: Context) {
         id: String,
         url: String,
         name: String,
-        resume: Boolean,
-        onProgress: (Long, Long) -> Unit
-    ) = withContext(Dispatchers.IO) {
+        resume: Boolean\n    ) = withContext(Dispatchers.IO) {
         val tempDir = File(appContext.filesDir, "downloads").apply { mkdirs() }
         val temp = File(tempDir, "bh_" + id + ".download")
         val engine = DownloadEngine()
@@ -114,7 +112,6 @@ class DownloadCoordinator private constructor(context: Context) {
                 update(persist = checkpoint) { list -> list.map {
                     if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
                 } }
-                onProgress(downloaded, total)
             }
             val selectedTree = appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
                 .getString("destination_tree", null)?.let(Uri::parse)
