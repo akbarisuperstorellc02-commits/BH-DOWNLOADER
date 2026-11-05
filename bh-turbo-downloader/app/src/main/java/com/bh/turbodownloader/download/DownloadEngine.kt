@@ -179,6 +179,9 @@ class DownloadEngine(
                     }
                 }
             }
+            if (total > 0L && downloaded != total) {
+                throw IOException("Incomplete download: received $downloaded of $total bytes")
+            }
             return downloaded
         }
     }
