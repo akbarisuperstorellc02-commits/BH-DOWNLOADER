@@ -38,7 +38,7 @@ class DownloadEngine(
         resume: Boolean = false,
         onProgress: (downloaded: Long, total: Long) -> Unit = { _, _ -> }
     ): Result {
-        cancelled.set(false)
+        checkCancelled()
         require(url.startsWith("https://") || url.startsWith("http://")) {
             "Only HTTP and HTTPS URLs are supported"
         }
@@ -48,6 +48,7 @@ class DownloadEngine(
         if (!resume && temp.exists()) temp.delete()
 
         val metadata = probe(url)
+        checkCancelled()
         val total = metadata.first
         val useRanges = metadata.second && total > 0L && existingBytes == 0L
         return try {
