@@ -135,6 +135,7 @@ class DownloadEngine(
             futures.forEach { it.get() }
         } catch (e: Exception) {
             futures.forEach { it.cancel(true) }
+            if (cancelled.get()) temp.delete()
             throw (e.cause as? IOException ?: IOException("Segmented download failed", e))
         } finally {
             executor.shutdownNow()
