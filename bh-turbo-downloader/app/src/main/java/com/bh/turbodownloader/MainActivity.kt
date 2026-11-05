@@ -259,6 +259,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
                         Text(item.fileName, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(statusLabel(item.status), color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            if (item.speedBytesPerSecond > 0L) Text(formatSpeed(item.speedBytesPerSecond), color = Mint, fontSize = 10.sp)
                             Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "—", color = Muted, fontSize = 10.sp)
                         }
                         if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
@@ -371,6 +372,7 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: Download
                         Text(item.fileName, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(statusLabel(item.status), color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            if (item.speedBytesPerSecond > 0L) Text(formatSpeed(item.speedBytesPerSecond), color = Mint, fontSize = 10.sp)
                             Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "…", color = Muted, fontSize = 10.sp)
                         }
                         if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
@@ -454,4 +456,11 @@ private fun SettingRow(title: String, detail: String, icon: androidx.compose.ui.
             Icon(Icons.Default.MoreHoriz, null, tint = Muted)
         }
     }
+}
+
+
+private fun formatSpeed(bytesPerSecond: Long): String = when {
+    bytesPerSecond >= 1024L * 1024L -> String.format(java.util.Locale.US, "%.2f MB/s", bytesPerSecond / (1024.0 * 1024.0))
+    bytesPerSecond >= 1024L -> String.format(java.util.Locale.US, "%.0f KB/s", bytesPerSecond / 1024.0)
+    else -> "$bytesPerSecond B/s"
 }
