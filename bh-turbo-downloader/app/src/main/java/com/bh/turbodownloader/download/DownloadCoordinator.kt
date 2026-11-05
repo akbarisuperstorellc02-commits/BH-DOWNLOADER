@@ -33,7 +33,7 @@ data class DownloadUiItem(
         get() = if (total > 0L) (downloaded.toFloat() / total).coerceIn(0f, 1f) else null
 }
 
-/** HTTP engine to UI bridge. Current output is app-specific; SAF and durable history are next. */
+/** HTTP engine to UI bridge with persisted task history and public MediaStore output on Android 10+. */
 class DownloadCoordinator(context: Context) {
     private val appContext = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
