@@ -34,6 +34,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")
     implementation("androidx.work:work-runtime-ktx:2.10.5")
+    implementation("androidx.documentfile:documentfile:1.0.1")
     implementation("com.squareup.okhttp3:okhttp:5.1.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
