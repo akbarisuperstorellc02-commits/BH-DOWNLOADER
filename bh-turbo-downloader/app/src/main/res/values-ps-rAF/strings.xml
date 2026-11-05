@@ -7,4 +7,5 @@
     <string name="internal_browser">داخلي لټونګر</string><string name="explore_download">وپلټئ او ډاونلوډ کړئ</string><string name="website_address">د وېبپاڼې پته ولیکئ</string><string name="open_website">وېبپاڼه پرانیزئ</string>
     <string name="my_library">زما کتابتون</string><string name="your_downloads">ستاسو ډاونلوډونه</string><string name="no_downloads">تر اوسه ډاونلوډ نشته</string><string name="preferences">غوره‌توبونه</string>
     <string name="download_mode">د ډاونلوډ حالت</string><string name="maximum_performance">اعظمي فعالیت</string><string name="save_location">د خوندي کولو ځای</string><string name="choose_folder">د ډاونلوډ پوښۍ وټاکئ</string><string name="appearance">بڼه</string><string name="dark_glass">درې‌بعدي تیاره ښیښه</string><string name="language">ژبه</string><string name="download_added">ډاونلوډ لېست ته اضافه شو</string>
+    <string name="pause">ودرول</string><string name="resume">بیا پیل</string><string name="downloading">ډاونلوډ روان دی</string><string name="completed">بشپړ شو</string><string name="paused">ودرول شو</string><string name="failed">ناکام</string><string name="interrupted">پرې شوی</string>
 </resources>
