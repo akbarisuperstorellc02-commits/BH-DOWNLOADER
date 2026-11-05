@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import androidx.work.workDataOf
 
 class DownloadWorker(
     appContext: Context,
@@ -38,11 +37,7 @@ class DownloadWorker(
                 id = id,
                 url = url,
                 name = name,
-                resume = resume,
-                onProgress = { downloaded, total ->
-                    val percent = if (total > 0L) ((downloaded * 100L) / total).toInt().coerceIn(0, 100) else 0
-                    setProgress(workDataOf("downloaded" to downloaded, "total" to total, "percent" to percent))
-                }
+                resume = resume
             )
             Result.success()
         } catch (_: kotlinx.coroutines.CancellationException) {
