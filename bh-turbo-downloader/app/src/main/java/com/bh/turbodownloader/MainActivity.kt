@@ -156,7 +156,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
                 trailingIcon = { if (url.isNotBlank()) IconButton(onClick = { url = ""; message = "" }) { Icon(Icons.Default.Close, stringResource(R.string.clear)) } },
                 shape = RoundedCornerShape(16.dp)
             )
-            Button(onClick = { message = start(url); if (message == "Download added to the queue" || message == "دانلود به فهرست اضافه شد") url = "" },
+            Button(onClick = { message = start(url); if (url.startsWith("http://", true) || url.startsWith("https://", true)) url = "" },
                 enabled = url.isNotBlank(), modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
                 Icon(Icons.Default.Download, null); Text("  " + stringResource(R.string.start_download), fontWeight = FontWeight.Bold)
@@ -186,6 +186,7 @@ private fun BrowserScreen(start: (String) -> String) {
     var address by remember { mutableStateOf("https://www.google.com") }
     var web by remember { mutableStateOf<WebView?>(null) }
     var pageTitle by remember { mutableStateOf("") }
+    var navVersion by remember { mutableIntStateOf(0) }
     var notice by remember { mutableStateOf("") }
     Column(Modifier.fillMaxSize().padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Header(stringResource(R.string.internal_browser), stringResource(R.string.explore_download))
@@ -196,9 +197,11 @@ private fun BrowserScreen(start: (String) -> String) {
                 address = target; web?.loadUrl(target)
             }) { Icon(Icons.Default.ArrowForward, stringResource(R.string.open_website), tint = Mint) }
         }
+        val canBack = navVersion >= 0 && web?.canGoBack() == true
+        val canForward = navVersion >= 0 && web?.canGoForward() == true
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            BrowserAction(Icons.Default.ArrowBack, stringResource(R.string.back), web?.canGoBack() == true) { web?.goBack() }
-            BrowserAction(Icons.Default.ArrowForward, stringResource(R.string.forward), web?.canGoForward() == true) { web?.goForward() }
+            BrowserAction(Icons.Default.ArrowBack, stringResource(R.string.back), canBack) { web?.goBack() }
+            BrowserAction(Icons.Default.ArrowForward, stringResource(R.string.forward), canForward) { web?.goForward() }
             BrowserAction(Icons.Default.Refresh, stringResource(R.string.refresh), true) { web?.reload() }
             BrowserAction(Icons.Default.Home, stringResource(R.string.home), true) { web?.loadUrl("https://www.google.com") }
         }
@@ -212,7 +215,7 @@ private fun BrowserScreen(start: (String) -> String) {
                     settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                     if (android.os.Build.VERSION.SDK_INT >= 26) settings.safeBrowsingEnabled = true
                     webViewClient = object : WebViewClient() {
-                        override fun onPageFinished(view: WebView?, url: String?) { if (url != null) address = url }
+                        override fun onPageFinished(view: WebView?, url: String?) { if (url != null) address = url; navVersion++ }
                     }
                     webChromeClient = object : WebChromeClient() {
                         override fun onReceivedTitle(view: WebView?, title: String?) { pageTitle = title.orEmpty() }
