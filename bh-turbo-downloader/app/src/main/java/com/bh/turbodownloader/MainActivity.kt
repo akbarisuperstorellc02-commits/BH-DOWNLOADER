@@ -8,6 +8,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -82,8 +85,10 @@ private fun TurboApp() {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
     }
     Surface(Modifier.fillMaxSize(), color = Base) {
-        Box(Modifier.fillMaxSize()) {
-            Box(Modifier.align(Alignment.TopEnd).size(300.dp).background(Brush.radialGradient(listOf(Color(0x334D7FFF), Color.Transparent))))
+        Box(Modifier.fillMaxSize().background(
+            Brush.linearGradient(listOf(Color(0xFF050914), Color(0xFF0B1426), Color(0xFF080D1B)))
+        )) {
+            AmbientBackdrop(Modifier.fillMaxSize())
             Column(Modifier.fillMaxSize()) {
                 Box(Modifier.weight(1f).fillMaxWidth()) {
                     when (selected) {
@@ -105,6 +110,45 @@ private fun TurboApp() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AmbientBackdrop(modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val w = size.width
+        val h = size.height
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(Color(0x554B7DFF), Color(0x164B7DFF), Color.Transparent),
+                center = Offset(w * 0.94f, h * 0.08f),
+                radius = w * 0.72f
+            ),
+            radius = w * 0.72f,
+            center = Offset(w * 0.94f, h * 0.08f)
+        )
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(Color(0x4434DCC5), Color(0x1234DCC5), Color.Transparent),
+                center = Offset(w * 0.02f, h * 0.76f),
+                radius = w * 0.62f
+            ),
+            radius = w * 0.62f,
+            center = Offset(w * 0.02f, h * 0.76f)
+        )
+        val step = 72f
+        var x = 0f
+        while (x <= w) {
+            drawLine(Color(0x087FA8D8), Offset(x, 0f), Offset(x, h), strokeWidth = 1f)
+            x += step
+        }
+        var y = 0f
+        while (y <= h) {
+            drawLine(Color(0x087FA8D8), Offset(0f, y), Offset(w, y), strokeWidth = 1f)
+            y += step
+        }
+        drawCircle(Color(0x223E9CFF), radius = w * 0.27f, center = Offset(w * 0.98f, h * 0.13f), style = Stroke(width = 1.2f))
+        drawCircle(Color(0x1834DCC5), radius = w * 0.34f, center = Offset(w * 0.98f, h * 0.13f), style = Stroke(width = 1f))
     }
 }
 
@@ -347,11 +391,22 @@ private fun LanguagePicker(selected: String, onSelect: (String) -> Unit) {
 
 @Composable
 private fun GlassCard(content: @Composable ColumnScope.() -> Unit) {
-    Card(Modifier.fillMaxWidth().shadow(12.dp, RoundedCornerShape(22.dp)), shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceA),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x223C6586))) {
-        Column(Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(Color(0xFF17263C), Color(0xFF101A2C)))).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
+    Card(
+        Modifier.fillMaxWidth().shadow(18.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xCC111D31)),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            Brush.linearGradient(listOf(Color(0x6655F0D1), Color(0x334B7DFF), Color(0x2255F0D1)))
+        )
+    ) {
+        Column(
+            Modifier.fillMaxWidth()
+                .background(Brush.linearGradient(listOf(Color(0xE61A2B43), Color(0xE60D1729), Color(0xE61B2440))))
+                .padding(17.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            content = content
+        )
     }
 }
 
