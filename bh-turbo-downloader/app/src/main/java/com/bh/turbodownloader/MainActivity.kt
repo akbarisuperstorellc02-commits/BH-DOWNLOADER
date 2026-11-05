@@ -3,7 +3,6 @@ package com.bh.turbodownloader
 import android.os.Bundle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.material3.LinearProgressIndicator
 import com.bh.turbodownloader.download.DownloadCoordinator
 import com.bh.turbodownloader.download.DownloadUiItem
@@ -334,7 +333,7 @@ private fun BrowserScreen(onStartDownload: (String) -> String) {
 }
 
 @Composable
-private fun LibraryScreen(downloads: List<DownloadUiItem>) {
+private fun LibraryScreen(downloads: List<DownloadUiItem>, coordinator: DownloadCoordinator) {
     Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
         Text("MY LIBRARY", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
         Text("Your downloads", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
@@ -351,6 +350,17 @@ private fun LibraryScreen(downloads: List<DownloadUiItem>) {
                         }
                         if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
                         item.error?.let { Text(it, color = Color(0xFFFF8A8A), fontSize = 10.sp) }
+                        if (item.status in listOf("Downloading", "Pausing")) {
+                            Button(onClick = { coordinator.pause(item.id) }, colors = ButtonDefaults.buttonColors(containerColor = SurfaceB)) {
+                                Icon(Icons.Default.Pause, null)
+                                Text(" Pause")
+                            }
+                        } else if (item.status in listOf("Paused", "Interrupted", "Failed")) {
+                            Button(onClick = { coordinator.resume(item.id) }, colors = ButtonDefaults.buttonColors(containerColor = Mint, contentColor = Color(0xFF06201E))) {
+                                Icon(Icons.Default.PlayArrow, null)
+                                Text(" Resume")
+                            }
+                        }
                     }
                 }
             }
