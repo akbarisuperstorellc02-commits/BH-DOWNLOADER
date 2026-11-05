@@ -7,4 +7,5 @@
     <string name="internal_browser">مرورگر داخلی</string><string name="explore_download">جستجو و دانلود</string><string name="website_address">آدرس وب‌سایت را وارد کنید</string><string name="open_website">بازکردن وب‌سایت</string>
     <string name="my_library">کتابخانه من</string><string name="your_downloads">دانلودهای شما</string><string name="no_downloads">هنوز دانلودی وجود ندارد</string><string name="preferences">تنظیمات ترجیحات</string>
     <string name="download_mode">حالت دانلود</string><string name="maximum_performance">بیشترین کارایی</string><string name="save_location">محل ذخیره</string><string name="choose_folder">انتخاب پوشه دانلود</string><string name="appearance">ظاهر برنامه</string><string name="dark_glass">شیشه‌ای تاریک سه‌بعدی</string><string name="language">زبان</string><string name="download_added">دانلود به فهرست اضافه شد</string>
+    <string name="pause">توقف</string><string name="resume">ادامه</string><string name="downloading">در حال دانلود</string><string name="completed">تکمیل شد</string><string name="paused">متوقف</string><string name="failed">ناموفق</string><string name="interrupted">قطع‌شده</string>
 </resources>
