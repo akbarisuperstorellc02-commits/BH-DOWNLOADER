@@ -29,6 +29,7 @@ class DownloadEngine(
     private val cancelled = AtomicBoolean(false)
 
     fun cancel() { cancelled.set(true) }
+    fun isCancelled(): Boolean = cancelled.get()
 
     @Throws(IOException::class)
     fun download(
