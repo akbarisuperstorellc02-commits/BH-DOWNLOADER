@@ -1,6 +1,12 @@
 package com.bh.turbodownloader
 
 import android.os.Bundle
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.LinearProgressIndicator
+import com.bh.turbodownloader.download.DownloadCoordinator
+import com.bh.turbodownloader.download.DownloadUiItem
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -90,6 +96,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun TurboApp() {
     var selected by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    val coordinator = remember { DownloadCoordinator(context) }
+    val downloads by coordinator.items.collectAsState()
+    DisposableEffect(coordinator) { onDispose { coordinator.close() } }
+    val startDownload: (String) -> String = { link ->
+        try {
+            coordinator.start(link)
+            "Download added to the queue"
+        } catch (error: Exception) {
+            error.message ?: "Could not start download"
+        }
+    }
     Surface(Modifier.fillMaxSize(), color = Base) {
         Box(Modifier.fillMaxSize()) {
             Box(
@@ -102,9 +120,9 @@ private fun TurboApp() {
             )
             Column(Modifier.fillMaxSize()) {
                 when (selected) {
-                    0 -> HomeScreen()
-                    1 -> BrowserScreen()
-                    2 -> LibraryScreen()
+                    0 -> HomeScreen(downloads, startDownload)
+                    1 -> BrowserScreen(startDownload)
+                    2 -> LibraryScreen(downloads)
                     else -> SettingsScreen()
                 }
                 NavigationBar(
@@ -132,7 +150,7 @@ private fun TurboApp() {
 }
 
 @Composable
-private fun HomeScreen() {
+private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String) -> String) {
     var url by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("Ready for your next download") }
     Column(
@@ -178,9 +196,7 @@ private fun HomeScreen() {
                 )
                 Button(
                     onClick = {
-                        message = if (url.startsWith("https://") || url.startsWith("http://")) {
-                            "Link accepted • download engine connection is next"
-                        } else "Enter a valid HTTP or HTTPS link"
+                        message = onStartDownload(url)
                     },
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     enabled = url.isNotBlank(),
@@ -261,7 +277,7 @@ private fun FeatureChip(label: String) {
 }
 
 @Composable
-private fun BrowserScreen() {
+private fun BrowserScreen(onStartDownload: (String) -> String) {
     var address by remember { mutableStateOf("https://") }
     var currentUrl by remember { mutableStateOf("https://www.google.com") }
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -290,6 +306,7 @@ private fun BrowserScreen() {
                         settings.domStorageEnabled = true
                         webViewClient = WebViewClient()
                         webChromeClient = WebChromeClient()
+                        setDownloadListener { downloadUrl, _, _, _, _ -> onStartDownload(downloadUrl) }
                         loadUrl(currentUrl)
                     }
                 },
@@ -301,10 +318,27 @@ private fun BrowserScreen() {
 }
 
 @Composable
-private fun LibraryScreen() {
+private fun LibraryScreen(downloads: List<DownloadUiItem>) {
     Column(Modifier.fillMaxSize().padding(22.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
         Text("MY LIBRARY", color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
         Text("Your downloads", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+        if (downloads.isEmpty()) {
+            Text("No downloads yet", color = Muted, fontSize = 12.sp)
+        } else {
+            downloads.reversed().forEach { item ->
+                Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
+                    Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text(item.fileName, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(item.status, color = Mint, fontSize = 10.sp, modifier = Modifier.weight(1f))
+                            Text(item.progress?.let { (it * 100).toInt().toString() + "%" } ?: "…", color = Muted, fontSize = 10.sp)
+                        }
+                        if (item.progress != null) LinearProgressIndicator(progress = { item.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
+                        item.error?.let { Text(it, color = Color(0xFFFF8A8A), fontSize = 10.sp) }
+                    }
+                }
+            }
+        }
         Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = SurfaceA)) {
             Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Icon(Icons.Default.Folder, null, tint = Mint, modifier = Modifier.size(42.dp))
