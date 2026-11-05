@@ -9,6 +9,7 @@ Clean-room Android downloader project. The application is being developed indepe
 - HTTP/HTTPS download engine with segmented byte-range transfer when supported by the server and single-stream fallback otherwise
 - Download history persistence, with interrupted tasks identified on the next launch
 - Public default destination: `Download/TurboBH` on Android 10 and newer
+- User-selectable destination folder through Android Storage Access Framework, with persisted folder permission
 - Planned selectable destination folder, pause/resume, retries and background execution
 - Planned UI languages: Afghan Dari, Pashto, Arabic and English
 - English digits in every supported language
@@ -27,7 +28,7 @@ Clean-room Android downloader project. The application is being developed indepe
 ## Remaining work / verification
 - Build and device verification are still pending; no APK is claimed as successfully built yet.
 - On Android versions below 10, downloads currently use app-specific storage.
-- User-selectable folder via Storage Access Framework is not implemented yet.
+- Folder selection is available through the system folder picker; on Android 10+ it overrides the default `Download/TurboBH` location.
 - Pause/resume, retry controls, durable background execution and robust restart recovery are not implemented yet. Persisted active tasks are marked Interrupted rather than automatically resumed.
 - Localization is planned but the current UI is English.
 - Browser tabs, download confirmation UI and full browser history are not implemented.
