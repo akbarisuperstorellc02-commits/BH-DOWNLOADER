@@ -255,7 +255,8 @@ class DownloadCoordinator private constructor(context: Context) {
                 fileName = item.optString("fileName"), downloaded = item.optLong("downloaded"),
                 total = item.optLong("total"),
                 status = if (saved == "Downloading" || saved == "Starting" || saved == "Pausing" || saved == "Queued") "Interrupted" else saved,
-                error = item.optString("error").takeIf { it.isNotBlank() && it != "null" }
+                error = item.optString("error").takeIf { it.isNotBlank() && it != "null" },
+                speedBytesPerSecond = item.optLong("speed", 0L)
             )
         }.filter { it.id.isNotBlank() && it.fileName.isNotBlank() }
     } catch (_: Exception) { emptyList() }
@@ -267,6 +268,7 @@ class DownloadCoordinator private constructor(context: Context) {
                 put("id", item.id); put("url", item.url); put("fileName", item.fileName)
                 put("downloaded", item.downloaded); put("total", item.total)
                 put("status", item.status); put("error", item.error ?: "")
+                put("speed", item.speedBytesPerSecond)
             })
         }
         appContext.getSharedPreferences("bh_downloads", Context.MODE_PRIVATE)
