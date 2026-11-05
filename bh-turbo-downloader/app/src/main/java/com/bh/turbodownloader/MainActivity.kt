@@ -106,6 +106,8 @@ private fun TurboApp() {
     val context = LocalContext.current
     val coordinator = remember { DownloadCoordinator(context) }
     val downloads by coordinator.items.collectAsState()
+    val downloadAddedMessage = stringResource(R.string.download_added)
+    val linkReadyMessage = stringResource(R.string.link_ready)
     var selectedLanguage by remember {
         mutableStateOf(context.getSharedPreferences("bh_settings", 0).getString("language", "en-US") ?: "en-US")
     }
@@ -124,7 +126,7 @@ private fun TurboApp() {
     val startDownload: (String) -> String = { link ->
         try {
             coordinator.start(link)
-            stringResource(R.string.download_added)
+            downloadAddedMessage
         } catch (error: Exception) {
             error.message ?: "Could not start download"
         }
@@ -208,7 +210,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, onStartDownload: (String
                 }
                 OutlinedTextField(
                     value = url,
-                    onValueChange = { url = it; message = stringResource(R.string.link_ready) },
+                    onValueChange = { url = it; message = linkReadyMessage },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     placeholder = { Text(stringResource(R.string.paste_url)) },
