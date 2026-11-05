@@ -3,6 +3,9 @@ package com.bh.turbodownloader.download
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.os.Build
+import android.content.ContentValues
+import android.provider.MediaStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -47,32 +50,61 @@ class DownloadCoordinator(context: Context) {
         update { it + DownloadUiItem(id, url, name, status = "Starting") }
 
         scope.launch {
-            val base = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-                ?: File(appContext.filesDir, "downloads")
-            base.mkdirs()
-            val requested = File(base, name)
-            val destination = if (requested.exists()) {
-                val dot = name.lastIndexOf('.')
-                val stem = if (dot > 0) name.substring(0, dot) else name
-                val extension = if (dot > 0) name.substring(dot) else ""
-                File(base, stem + "_" + id.take(8) + extension)
-            } else requested
+            val temp = File(appContext.cacheDir, "bh_" + id + ".download")
             val engine = DownloadEngine()
             setStatus(id, "Downloading")
             try {
-                val result = engine.download(url, destination) { downloaded, total ->
+                val result = engine.download(url, temp) { downloaded, total ->
                     update { list -> list.map {
                         if (it.id == id) it.copy(downloaded = downloaded, total = total, status = "Downloading") else it
                     } }
                 }
+                val savedLocation = if (Build.VERSION.SDK_INT >= 29) {
+                    publishToPublicDownloads(temp, name)
+                    "Download/TurboBH"
+                } else {
+                    val legacyDir = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                        ?: File(appContext.filesDir, "downloads")
+                    legacyDir.mkdirs()
+                    val legacyFile = File(legacyDir, name)
+                    val finalFile = if (legacyFile.exists()) File(legacyDir, id.take(8) + "_" + name) else legacyFile
+                    if (temp.renameTo(finalFile).not()) temp.copyTo(finalFile, overwrite = true)
+                    finalFile.absolutePath
+                }
                 update { list -> list.map {
-                    if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed") else it
+                    if (it.id == id) it.copy(downloaded = result.bytes, total = result.bytes, status = "Completed", error = "Saved: " + savedLocation) else it
                 } }
             } catch (error: Exception) {
+                temp.delete()
                 update { list -> list.map {
                     if (it.id == id) it.copy(status = "Failed", error = error.message ?: "Download failed") else it
                 } }
             }
+        }
+    }
+
+    private fun publishToPublicDownloads(source: File, fileName: String) {
+        val relativePath = Environment.DIRECTORY_DOWNLOADS + "/TurboBH"
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+            put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
+            put(MediaStore.Downloads.RELATIVE_PATH, relativePath)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+        val resolver = appContext.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IllegalStateException("Unable to create file in Download/TurboBH")
+        try {
+            resolver.openOutputStream(uri)?.use { output ->
+                source.inputStream().buffered().use { input -> input.copyTo(output) }
+            } ?: throw IllegalStateException("Unable to open destination file")
+            val complete = ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }
+            resolver.update(uri, complete, null, null)
+        } catch (error: Exception) {
+            resolver.delete(uri, null, null)
+            throw error
+        } finally {
+            source.delete()
         }
     }
 
