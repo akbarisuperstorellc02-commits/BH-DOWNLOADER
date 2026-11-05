@@ -49,8 +49,15 @@ class DownloadEngine(
         val useRanges = metadata.second && total > 0L
         return try {
             if (useRanges) {
-                downloadInRanges(url, temp, total, onProgress)
-                Result(commit(temp, destination), total, true)
+                try {
+                    downloadInRanges(url, temp, total, onProgress)
+                    Result(commit(temp, destination), total, true)
+                } catch (rangeError: IOException) {
+                    if (cancelled.get()) throw rangeError
+                    temp.delete()
+                    val bytes = downloadSingle(url, temp, total, onProgress)
+                    Result(commit(temp, destination), bytes, false)
+                }
             } else {
                 val bytes = downloadSingle(url, temp, total, onProgress)
                 Result(commit(temp, destination), bytes, false)
