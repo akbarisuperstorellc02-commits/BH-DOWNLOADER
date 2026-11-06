@@ -188,6 +188,22 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
             Text(active?.fileName ?: stringResource(R.string.segmented_transfers), color = Muted, fontSize = 11.sp)
             if (active?.progress != null) LinearProgressIndicator(progress = { active.progress!! }, modifier = Modifier.fillMaxWidth(), color = Mint)
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            DashboardStat(stringResource(R.string.failed), downloads.count { it.status == "Failed" }.toString(), Color(0xFFFF8B9B), Modifier.weight(1f))
+            DashboardStat(stringResource(R.string.completed), downloads.count { it.status == "Completed" }.toString(), Color(0xFF55E6A5), Modifier.weight(1f))
+            DashboardStat(stringResource(R.string.downloading), downloads.count { it.status == "Downloading" || it.status == "Queued" || it.status == "Probing" }.toString(), Mint, Modifier.weight(1f))
+            DashboardStat(stringResource(R.string.total_downloads), downloads.size.toString(), White, Modifier.weight(1f))
+        }
+        GlassCard {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Storage, null, tint = Mint)
+                Text(stringResource(R.string.download_space), color = White, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.save_location), color = Muted, fontSize = 10.sp)
+            }
+            LinearProgressIndicator(progress = { if (downloads.isEmpty()) 0f else downloads.count { it.status == "Completed" }.toFloat() / downloads.size.toFloat() },
+                modifier = Modifier.fillMaxWidth().height(7.dp).clip(CircleShape), color = Mint, trackColor = Color(0xFF263247))
+            Text(stringResource(R.string.profile_activity) + "  •  " + downloads.size.toString(), color = Muted, fontSize = 10.sp)
+        }
         GlassCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.new_download), color = White, fontSize = 17.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -222,6 +238,19 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
             }
         } else downloads.takeLast(3).reversed().forEach { DownloadCard(it, null) }
         Text(stringResource(R.string.maximum_mode), color = Color(0xFF647795), fontSize = 9.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+    }
+}
+
+@Composable
+private fun DashboardStat(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    Column(modifier.height(88.dp).clip(RoundedCornerShape(18.dp))
+        .background(color.copy(alpha = 0.08f))
+        .border(1.dp, color.copy(alpha = 0.28f), RoundedCornerShape(18.dp))
+        .padding(horizontal = 5.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(label, color = Muted, fontSize = 8.sp, maxLines = 1)
+        Spacer(Modifier.height(6.dp))
+        Text(value, color = color, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
     }
 }
 
