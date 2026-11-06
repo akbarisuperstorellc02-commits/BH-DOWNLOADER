@@ -95,7 +95,8 @@ private fun TurboApp() {
                         0 -> HomeScreen(downloads, start) { selected = 2 }
                         1 -> BrowserScreen(start)
                         2 -> LibraryScreen(downloads, coordinator)
-                        else -> SettingsScreen(folder, language, { picker.launch(null) }, changeLanguage)
+                        3 -> SettingsScreen(folder, language, { picker.launch(null) }, changeLanguage)
+                        else -> ProfileScreen(downloads)
                     }
                 }
                 NavigationBar(containerColor = Color(0xFF0B1425), contentColor = Mint, tonalElevation = 12.dp) {
@@ -103,7 +104,8 @@ private fun TurboApp() {
                         Triple(stringResource(R.string.home), Icons.Default.Bolt, 0),
                         Triple(stringResource(R.string.browser), Icons.Default.Explore, 1),
                         Triple(stringResource(R.string.files), Icons.Default.Folder, 2),
-                        Triple(stringResource(R.string.settings), Icons.Default.Settings, 3)
+                        Triple(stringResource(R.string.settings), Icons.Default.Settings, 3),
+                        Triple(stringResource(R.string.profile), Icons.Default.Person, 4)
                     ).forEach { (label, icon, index) ->
                         NavigationBarItem(selected == index, { selected = index }, icon = { Icon(icon, label) }, label = { Text(label, fontSize = 10.sp) })
                     }
@@ -172,9 +174,7 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
                 Text(stringResource(R.string.downloader), color = White, fontSize = 29.sp, fontWeight = FontWeight.ExtraBold)
                 Text(stringResource(R.string.tagline), color = Muted, fontSize = 12.sp)
             }
-            Box(Modifier.size(54.dp).shadow(18.dp, CircleShape).background(Brush.linearGradient(listOf(Color(0xFF2D7180), Color(0xFF24345F))), CircleShape).border(1.dp, Color(0x8855F0D1), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Bolt, null, tint = Mint, modifier = Modifier.size(29.dp))
-            }
+            BhLogo(Modifier.size(62.dp))
         }
         GlassCard {
             val active = downloads.lastOrNull { it.status == "Downloading" }
@@ -222,6 +222,103 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
             }
         } else downloads.takeLast(3).reversed().forEach { DownloadCard(it, null) }
         Text(stringResource(R.string.maximum_mode), color = Color(0xFF647795), fontSize = 9.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+    }
+}
+
+@Composable
+private fun BhLogo(modifier: Modifier = Modifier) {
+    Box(modifier.shadow(20.dp, RoundedCornerShape(20.dp))
+        .background(Brush.linearGradient(listOf(Color(0xFF102B3D), Color(0xFF17213C), Color(0xFF07121F))), RoundedCornerShape(20.dp))
+        .border(1.dp, Color(0xAA55F0D1), RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxSize().padding(5.dp).border(1.dp, Color(0x334B7DFF), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
+            Icon(Icons.Default.Bolt, null, tint = Mint, modifier = Modifier.size(31.dp))
+            Text("BH", color = White, fontSize = 8.sp, fontWeight = FontWeight.Black,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 3.dp))
+        }
+    }
+}
+
+@Composable
+private fun ProfileScreen(downloads: List<DownloadUiItem>) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("bh_settings", 0) }
+    var displayName by remember { mutableStateOf(prefs.getString("profile_name", "BH User") ?: "BH User") }
+    var editing by remember { mutableStateOf(false) }
+    val completed = downloads.count { it.status == "Completed" }
+    val active = downloads.count { it.status == "Downloading" || it.status == "Queued" || it.status == "Probing" }
+    val failed = downloads.count { it.status == "Failed" }
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
+        Header(stringResource(R.string.profile), stringResource(R.string.my_profile), stringResource(R.string.profile_local_hint))
+        GlassCard {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Box(Modifier.size(78.dp).shadow(12.dp, CircleShape)
+                    .background(Brush.linearGradient(listOf(Color(0xFF1F9D9A), Color(0xFF263A75))), CircleShape)
+                    .border(2.dp, Mint.copy(alpha = 0.8f), CircleShape), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Person, null, tint = White, modifier = Modifier.size(42.dp))
+                    Box(Modifier.align(Alignment.BottomEnd).size(20.dp).background(Color(0xFF16C784), CircleShape)
+                        .border(2.dp, SurfaceA, CircleShape))
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(displayName, color = White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                    Text(stringResource(R.string.profile_local_account), color = Mint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.profile_no_signin), color = Muted, fontSize = 10.sp)
+                }
+                IconButton(onClick = { editing = true }) { Icon(Icons.Default.Edit, stringResource(R.string.edit_profile), tint = Mint) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ProfileStat(stringResource(R.string.completed), completed.toString(), Mint, Modifier.weight(1f))
+                ProfileStat(stringResource(R.string.downloading), active.toString(), Blue, Modifier.weight(1f))
+                ProfileStat(stringResource(R.string.failed), failed.toString(), Color(0xFFFF858F), Modifier.weight(1f))
+            }
+        }
+        GlassCard {
+            Text(stringResource(R.string.profile_activity), color = White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Downloading, null, tint = Mint)
+                Text(stringResource(R.string.total_downloads), color = Muted, modifier = Modifier.weight(1f))
+                Text(downloads.size.toString(), color = White, fontWeight = FontWeight.Bold)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.VerifiedUser, null, tint = Mint)
+                Text(stringResource(R.string.profile_private_note), color = Muted, fontSize = 11.sp)
+            }
+        }
+        GlassCard {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                BhLogo(Modifier.size(48.dp))
+                Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                    Text("BH TURBO DOWNLOADER", color = White, fontWeight = FontWeight.ExtraBold, fontSize = 13.sp)
+                    Text(stringResource(R.string.profile_version), color = Muted, fontSize = 10.sp)
+                }
+                Icon(Icons.Default.Bolt, null, tint = Mint, modifier = Modifier.size(24.dp))
+            }
+        }
+        if (editing) {
+            AlertDialog(
+                onDismissRequest = { editing = false },
+                title = { Text(stringResource(R.string.edit_profile), color = White) },
+                text = { OutlinedTextField(value = displayName, onValueChange = { displayName = it.take(32) },
+                    singleLine = true, label = { Text(stringResource(R.string.profile_name)) }) },
+                confirmButton = { TextButton(onClick = {
+                    val safeName = displayName.trim().ifBlank { "BH User" }
+                    displayName = safeName
+                    prefs.edit().putString("profile_name", safeName).apply()
+                    editing = false
+                }) { Text(stringResource(R.string.save), color = Mint) } },
+                dismissButton = { TextButton(onClick = { editing = false }) { Text(stringResource(R.string.cancel)) } },
+                containerColor = SurfaceA
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileStat(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    Column(modifier.clip(RoundedCornerShape(16.dp)).background(color.copy(alpha = 0.09f))
+        .border(1.dp, color.copy(alpha = 0.32f), RoundedCornerShape(16.dp)).padding(11.dp),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(value, color = color, fontSize = 21.sp, fontWeight = FontWeight.ExtraBold)
+        Text(label, color = Muted, fontSize = 9.sp, maxLines = 1)
     }
 }
 
