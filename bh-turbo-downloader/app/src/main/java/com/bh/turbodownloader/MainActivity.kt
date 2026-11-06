@@ -196,13 +196,13 @@ private fun HomeScreen(downloads: List<DownloadUiItem>, start: (String) -> Strin
         }
         GlassCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Storage, null, tint = Mint)
-                Text(stringResource(R.string.download_space), color = White, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Text(stringResource(R.string.save_location), color = Muted, fontSize = 10.sp)
+                Icon(Icons.Default.Insights, null, tint = Mint)
+                Text(stringResource(R.string.profile_activity), color = White, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(downloads.count { it.status == "Completed" }.toString() + " / " + downloads.size.toString(), color = Mint, fontSize = 11.sp)
             }
             LinearProgressIndicator(progress = { if (downloads.isEmpty()) 0f else downloads.count { it.status == "Completed" }.toFloat() / downloads.size.toFloat() },
                 modifier = Modifier.fillMaxWidth().height(7.dp).clip(CircleShape), color = Mint, trackColor = Color(0xFF263247))
-            Text(stringResource(R.string.profile_activity) + "  •  " + downloads.size.toString(), color = Muted, fontSize = 10.sp)
+            Text(stringResource(R.string.completed) + "  •  " + stringResource(R.string.total_downloads) + ": " + downloads.size.toString(), color = Muted, fontSize = 10.sp)
         }
         GlassCard {
             Row(verticalAlignment = Alignment.CenterVertically) {
