@@ -18,4 +18,17 @@
     <string name="language_restart_hint">زبان انتخاب‌شده به‌صورت خودکار اعمال می‌شود.</string>
     <string name="remove">حذف از فهرست</string>
     <string name="eta">زمان باقی‌مانده</string>
+    <string name="profile">پروفایل</string>
+    <string name="my_profile">پروفایل من</string>
+    <string name="profile_local_hint">فضای شخصی مدیریت دانلودهای شما</string>
+    <string name="profile_local_account">پروفایل محلی</string>
+    <string name="profile_no_signin">بدون نیاز به ورود حساب</string>
+    <string name="edit_profile">ویرایش پروفایل</string>
+    <string name="profile_activity">فعالیت دانلود</string>
+    <string name="total_downloads">مجموع دانلودها</string>
+    <string name="profile_private_note">پروفایل و تاریخچه دانلودها در همین دستگاه می‌ماند.</string>
+    <string name="profile_version">نسخه 1.2.0</string>
+    <string name="profile_name">نام نمایشی</string>
+    <string name="save">ذخیره</string>
+    <string name="cancel">لغو</string>
 </resources>
