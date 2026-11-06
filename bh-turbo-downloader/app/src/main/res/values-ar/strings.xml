@@ -18,4 +18,17 @@
     <string name="language_restart_hint">يتم تطبيق اللغة المختارة تلقائيًا.</string>
     <string name="remove">إزالة من القائمة</string>
     <string name="eta">الوقت المتبقي</string>
+    <string name="profile">الملف الشخصي</string>
+    <string name="my_profile">ملفي الشخصي</string>
+    <string name="profile_local_hint">مساحتك الشخصية لإدارة التنزيلات</string>
+    <string name="profile_local_account">ملف شخصي محلي</string>
+    <string name="profile_no_signin">لا حاجة إلى تسجيل الدخول</string>
+    <string name="edit_profile">تعديل الملف الشخصي</string>
+    <string name="profile_activity">نشاط التنزيل</string>
+    <string name="total_downloads">إجمالي التنزيلات</string>
+    <string name="profile_private_note">يتم الاحتفاظ بملفك وسجل التنزيلات على هذا الجهاز.</string>
+    <string name="profile_version">الإصدار 1.2.0</string>
+    <string name="profile_name">الاسم المعروض</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
 </resources>
