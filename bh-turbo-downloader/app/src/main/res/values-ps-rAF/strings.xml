@@ -18,4 +18,17 @@
     <string name="language_restart_hint">ټاکل شوې ژبه په خپله پلي کېږي.</string>
     <string name="remove">له لېست څخه لرې کول</string>
     <string name="eta">پاتې وخت</string>
+    <string name="profile">پروفایل</string>
+    <string name="my_profile">زما پروفایل</string>
+    <string name="profile_local_hint">ستاسو د ډاونلوډونو شخصي ځای</string>
+    <string name="profile_local_account">ځايي پروفایل</string>
+    <string name="profile_no_signin">ننوتلو ته اړتیا نشته</string>
+    <string name="edit_profile">پروفایل سمول</string>
+    <string name="profile_activity">د ډاونلوډ فعالیت</string>
+    <string name="total_downloads">ټول ډاونلوډونه</string>
+    <string name="profile_private_note">ستاسو پروفایل او تاریخچه په همدې وسیله کې ساتل کېږي.</string>
+    <string name="profile_version">نسخه 1.2.0</string>
+    <string name="profile_name">ښکاره نوم</string>
+    <string name="save">خوندي کول</string>
+    <string name="cancel">لغوه</string>
 </resources>
