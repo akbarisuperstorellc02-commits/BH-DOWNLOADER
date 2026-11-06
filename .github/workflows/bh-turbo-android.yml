@@ -1,0 +1,46 @@
+name: Android build
+
+concurrency:
+  group: bh-turbo-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    paths:
+      - "bh-turbo-downloader/**"
+      - ".github/workflows/bh-turbo-android.yml"
+  pull_request:
+    paths:
+      - "bh-turbo-downloader/**"
+      - ".github/workflows/bh-turbo-android.yml"
+  workflow_dispatch:
+
+jobs:
+  debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Build debug APK
+        working-directory: bh-turbo-downloader
+        run: gradle --no-daemon :app:assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: bh-turbo-downloader-debug
+          path: bh-turbo-downloader/app/build/outputs/apk/debug/app-debug.apk

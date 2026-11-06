@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">BH Turbo Downloader</string>
+    <string name="home">Home</string><string name="browser">Browser</string><string name="files">Files</string><string name="settings">Settings</string>
+    <string name="downloader">Downloader</string><string name="tagline">Your files. At full speed.</string>
+    <string name="new_download">New download</string><string name="paste_url">Paste a file URL</string><string name="start_download">Start download</string>
+    <string name="ready_download">Ready for your next download</string><string name="link_ready">Link ready to check</string>
+    <string name="recent_downloads">RECENT DOWNLOADS</string><string name="view_all">VIEW ALL</string>
+    <string name="download_space">Your download space</string><string name="download_space_hint">Downloaded files will appear here</string>
+    <string name="maximum_mode">MAXIMUM MODE • SECURE CONNECTION</string><string name="turbo_engine">TURBO ENGINE</string>
+    <string name="built_speed">Built for\nmaximum speed.</string><string name="segmented_transfers">Smart connections • segmented transfers</string>
+    <string name="multi_connection">Multi-connection</string><string name="smart_fallback">Smart fallback</string>
+    <string name="internal_browser">INTERNAL BROWSER</string><string name="explore_download">Explore &amp; download</string><string name="website_address">Enter website address</string><string name="open_website">Open website</string>
+    <string name="my_library">MY LIBRARY</string><string name="your_downloads">Your downloads</string><string name="no_downloads">No downloads yet</string>
+    <string name="preferences">PREFERENCES</string><string name="download_mode">Download mode</string><string name="maximum_performance">Maximum performance</string>
+    <string name="save_location">Save location</string><string name="choose_folder">Choose download folder</string><string name="appearance">Appearance</string><string name="dark_glass">3D dark glass</string>
+    <string name="language">Language</string><string name="download_added">Download added to the queue</string>
+    <string name="pause">Pause</string><string name="resume">Resume</string><string name="downloading">Downloading</string><string name="completed">Completed</string><string name="paused">Paused</string><string name="failed">Failed</string><string name="interrupted">Interrupted</string>
+    <string name="download_failed">Could not start the download</string>
+    <string name="clear">Clear</string>
+    <string name="calculating_size">Calculating file size…</string>
+    <string name="queued">Queued</string>
+    <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="refresh">Refresh</string>
+    <string name="language_restart_hint">The selected language is applied automatically.</string>
+    <string name="remove">Remove</string>
+    <string name="eta">ETA</string>
+    <string name="profile">Profile</string>
+    <string name="my_profile">My profile</string>
+    <string name="profile_local_hint">Your personal download space</string>
+    <string name="profile_local_account">Local profile</string>
+    <string name="profile_no_signin">No sign-in required</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="profile_activity">Download activity</string>
+    <string name="total_downloads">Total downloads</string>
+    <string name="profile_private_note">Your profile and download history stay on this device.</string>
+    <string name="profile_version">Version 1.2.0</string>
+    <string name="profile_name">Display name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>

@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">BH Turbo Downloader</string><string name="home">خانه</string><string name="browser">مرورگر</string><string name="files">فایل‌ها</string><string name="settings">تنظیمات</string>
+    <string name="downloader">دانلودر</string><string name="tagline">فایل‌های شما، با بیشترین سرعت.</string><string name="new_download">دانلود جدید</string><string name="paste_url">لینک فایل را وارد کنید</string><string name="start_download">شروع دانلود</string>
+    <string name="ready_download">برای دانلود بعدی آماده است</string><string name="link_ready">لینک آماده بررسی است</string><string name="recent_downloads">دانلودهای اخیر</string><string name="view_all">مشاهده همه</string>
+    <string name="download_space">فضای دانلود شما</string><string name="download_space_hint">فایل‌های دانلودشده اینجا نمایش داده می‌شوند</string><string name="maximum_mode">حالت حداکثر • اتصال امن</string><string name="turbo_engine">موتور توربو</string>
+    <string name="built_speed">برای بیشترین\nسرعت ساخته شده.</string><string name="segmented_transfers">اتصال هوشمند • دانلود چندبخشی</string><string name="multi_connection">چنداتصالی</string><string name="smart_fallback">جایگزین هوشمند</string>
+    <string name="internal_browser">مرورگر داخلی</string><string name="explore_download">جستجو و دانلود</string><string name="website_address">آدرس وب‌سایت را وارد کنید</string><string name="open_website">بازکردن وب‌سایت</string>
+    <string name="my_library">کتابخانه من</string><string name="your_downloads">دانلودهای شما</string><string name="no_downloads">هنوز دانلودی وجود ندارد</string><string name="preferences">تنظیمات ترجیحات</string>
+    <string name="download_mode">حالت دانلود</string><string name="maximum_performance">بیشترین کارایی</string><string name="save_location">محل ذخیره</string><string name="choose_folder">انتخاب پوشه دانلود</string><string name="appearance">ظاهر برنامه</string><string name="dark_glass">شیشه‌ای تاریک سه‌بعدی</string><string name="language">زبان</string><string name="download_added">دانلود به فهرست اضافه شد</string>
+    <string name="pause">توقف</string><string name="resume">ادامه</string><string name="downloading">در حال دانلود</string><string name="completed">تکمیل شد</string><string name="paused">متوقف</string><string name="failed">ناموفق</string><string name="interrupted">قطع‌شده</string>
+    <string name="download_failed">شروع دانلود ممکن نشد</string>
+    <string name="clear">پاک‌کردن</string>
+    <string name="calculating_size">در حال محاسبه حجم فایل…</string>
+    <string name="queued">در صف دانلود</string>
+    <string name="back">بازگشت</string>
+    <string name="forward">جلو</string>
+    <string name="refresh">بارگذاری دوباره</string>
+    <string name="language_restart_hint">زبان انتخاب‌شده به‌صورت خودکار اعمال می‌شود.</string>
+    <string name="remove">حذف از فهرست</string>
+    <string name="eta">زمان باقی‌مانده</string>
+    <string name="profile">پروفایل</string>
+    <string name="my_profile">پروفایل من</string>
+    <string name="profile_local_hint">فضای شخصی مدیریت دانلودهای شما</string>
+    <string name="profile_local_account">پروفایل محلی</string>
+    <string name="profile_no_signin">بدون نیاز به ورود حساب</string>
+    <string name="edit_profile">ویرایش پروفایل</string>
+    <string name="profile_activity">فعالیت دانلود</string>
+    <string name="total_downloads">مجموع دانلودها</string>
+    <string name="profile_private_note">پروفایل و تاریخچه دانلودها در همین دستگاه می‌ماند.</string>
+    <string name="profile_version">نسخه 1.2.0</string>
+    <string name="profile_name">نام نمایشی</string>
+    <string name="save">ذخیره</string>
+    <string name="cancel">لغو</string>
+</resources>

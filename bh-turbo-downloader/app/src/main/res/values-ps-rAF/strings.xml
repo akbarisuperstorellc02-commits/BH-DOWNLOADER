@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">BH Turbo Downloader</string><string name="home">کور</string><string name="browser">لټونګر</string><string name="files">فایلونه</string><string name="settings">امستنې</string>
+    <string name="downloader">ډاونلوډر</string><string name="tagline">ستاسو فایلونه، په بشپړ سرعت.</string><string name="new_download">نوی ډاونلوډ</string><string name="paste_url">د فایل لینک دننه کړئ</string><string name="start_download">ډاونلوډ پیل کړئ</string>
+    <string name="ready_download">ستاسو راتلونکي ډاونلوډ ته چمتو دی</string><string name="link_ready">لینک د کتنې لپاره چمتو دی</string><string name="recent_downloads">وروستي ډاونلوډونه</string><string name="view_all">ټول وګورئ</string>
+    <string name="download_space">ستاسو د ډاونلوډ ځای</string><string name="download_space_hint">ډاونلوډ شوي فایلونه دلته ښکاري</string><string name="maximum_mode">اعظمي حالت • خوندي اړیکه</string><string name="turbo_engine">ټربو انجن</string>
+    <string name="built_speed">د اعظمي سرعت\nلپاره جوړ شوی.</string><string name="segmented_transfers">هوښیارې اړیکې • څو برخې ډاونلوډ</string><string name="multi_connection">څو اړیکې</string><string name="smart_fallback">هوښیار بدیل</string>
+    <string name="internal_browser">داخلي لټونګر</string><string name="explore_download">وپلټئ او ډاونلوډ کړئ</string><string name="website_address">د وېبپاڼې پته ولیکئ</string><string name="open_website">وېبپاڼه پرانیزئ</string>
+    <string name="my_library">زما کتابتون</string><string name="your_downloads">ستاسو ډاونلوډونه</string><string name="no_downloads">تر اوسه ډاونلوډ نشته</string><string name="preferences">غوره‌توبونه</string>
+    <string name="download_mode">د ډاونلوډ حالت</string><string name="maximum_performance">اعظمي فعالیت</string><string name="save_location">د خوندي کولو ځای</string><string name="choose_folder">د ډاونلوډ پوښۍ وټاکئ</string><string name="appearance">بڼه</string><string name="dark_glass">درې‌بعدي تیاره ښیښه</string><string name="language">ژبه</string><string name="download_added">ډاونلوډ لېست ته اضافه شو</string>
+    <string name="pause">ودرول</string><string name="resume">بیا پیل</string><string name="downloading">ډاونلوډ روان دی</string><string name="completed">بشپړ شو</string><string name="paused">ودرول شو</string><string name="failed">ناکام</string><string name="interrupted">پرې شوی</string>
+    <string name="download_failed">ډاونلوډ پیل نه شو</string>
+    <string name="clear">پاکول</string>
+    <string name="calculating_size">د فایل اندازه محاسبه کېږي…</string>
+    <string name="queued">په کتار کې</string>
+    <string name="back">شاته</string>
+    <string name="forward">مخکې</string>
+    <string name="refresh">بیا تازه کول</string>
+    <string name="language_restart_hint">ټاکل شوې ژبه په خپله پلي کېږي.</string>
+    <string name="remove">له لېست څخه لرې کول</string>
+    <string name="eta">پاتې وخت</string>
+    <string name="profile">پروفایل</string>
+    <string name="my_profile">زما پروفایل</string>
+    <string name="profile_local_hint">ستاسو د ډاونلوډونو شخصي ځای</string>
+    <string name="profile_local_account">ځايي پروفایل</string>
+    <string name="profile_no_signin">ننوتلو ته اړتیا نشته</string>
+    <string name="edit_profile">پروفایل سمول</string>
+    <string name="profile_activity">د ډاونلوډ فعالیت</string>
+    <string name="total_downloads">ټول ډاونلوډونه</string>
+    <string name="profile_private_note">ستاسو پروفایل او تاریخچه په همدې وسیله کې ساتل کېږي.</string>
+    <string name="profile_version">نسخه 1.2.0</string>
+    <string name="profile_name">ښکاره نوم</string>
+    <string name="save">خوندي کول</string>
+    <string name="cancel">لغوه</string>
+</resources>
